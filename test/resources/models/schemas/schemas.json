@@ -1,0 +1,10 @@
+{
+  "_id": { "$oid": "5ac9065704040014c266ceb3" },
+  "name": "mood",
+  "schema": {
+    "type": "string",
+    "enum": ["bad", "down", "okayish", "good", "dabomb"]
+  }
+}
+
+

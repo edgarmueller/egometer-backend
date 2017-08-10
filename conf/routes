@@ -1,0 +1,60 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Schemas --
+GET           /schemas                         controllers.models.SchemaController.getAllMeterSchemas
+GET           /schemas/:id                     controllers.models.SchemaController.getMeterSchema(id: String)
++ nocsrf
+POST          /schemas                         controllers.models.SchemaController.addMeterSchema
++ nocsrf
+DELETE        /schemas/:id                     controllers.models.SchemaController.deleteMeterSchema(id: String)
+
+# Meter --
+GET           /meters                          controllers.models.MeterController.getAllMeters
+GET           /meters/:id                      controllers.models.MeterController.getMeter(id: String)
+# + nocsrf
+POST          /meters/:id                      controllers.models.MeterController.updateMeter(id: String)
++ nocsrf
+POST          /meters                          controllers.models.MeterController.createMeter
++ nocsrf
+DELETE        /meters/:id                      controllers.models.MeterController.deleteMeter(id: String)
+
+# Meter entries --
+GET           /entries/:date                   controllers.models.MeterEntryController.findMonthlyEntriesByDate(date: String)
+GET           /entries/:date/:meterId          controllers.models.MeterEntryController.findMonthlyMeterEntriesByDate(date: String, meterId: String)
+
++ nocsrf
+POST          /entries/:date/:meterId          controllers.models.MeterEntryController.upsertMeterEntry(meterId: String, date: String)
+
+# Silhouette
+GET           /signOut                         controllers.auth.SignOutController.signOut
+
+# POST          /verify/:provider                controllers.auth.SocialAuthController.authenticateToken(provider)
+GET           /is-signed-in                    controllers.auth.IsSignedInController.isSignedIn
+
+# POST        /signUp                          controllers.auth.SignUpController.submit
+
++ nocsrf
+POST          /sign-in                         controllers.auth.SignInController.signIn
+# POST          /sign-out                        controllers.auth.SignOutController.signOut
++ nocsrf
+POST          /sign-up                         controllers.auth.SignUpController.signUp
+GET           /sign-out                        controllers.auth.SignOutController.signOut
+
+POST          /account/activation              controllers.auth.AccountController.send
+GET           /account/activation/:token       controllers.auth.AccountController.activate(token: java.util.UUID)
+
+POST         /password/recovery                controllers.auth.PasswordController.recover
+GET          /password/recovery/:token         controllers.auth.PasswordController.validate(token: java.util.UUID)
+POST         /password/recovery/:token         controllers.auth.PasswordController.reset(token: java.util.UUID)
+
+# GET         /account/email/:email            controllers.ActivateAccountController.send(email: String)
+
+# Swagger docs
+GET          /                                 controllers.models.ApiDocsController.redirectToDocs
+GET          /swagger.json                     controllers.ApiHelpController.getResources
+GET          /api-docs                         controllers.models.ApiDocsController.redirectToDocs
+
+# Map static resources from the /public folder to the /assets URL path
+GET          /assets/*file                     controllers.Assets.versioned(path="/public", file: Asset)

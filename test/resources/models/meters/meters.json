@@ -1,0 +1,8 @@
+{
+  "_id":{ "$oid":"5b352e060d23cb43f5356301" },
+  "schemaId": "5b352d1821d900141fc5ab03",
+  "name":"Water cups",
+  "visualization":"Bars",
+  "color":"#238cd8",
+  "userId":"a8a0c0ba-74aa-4bce-862d-08637ef7ba78"
+}
