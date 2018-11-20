@@ -30,7 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param silhouette             The Silhouette stack.
   * @param userService            The user service implementation.
   * @param credentialsProvider    The credentials provider.
-  * @param socialProviderRegistry The social provider registry.
   * @param configuration          The Play configuration.
   * @param clock                  The clock instance.
   */
@@ -39,7 +38,6 @@ class SignInController @Inject() (
                                    silhouette:             Silhouette[DefaultEnv],
                                    userService:            UserService,
                                    credentialsProvider:    CredentialsProvider,
-                                   socialProviderRegistry: SocialProviderRegistry,
                                    configuration:          Configuration,
                                    clock:                  Clock
                                  )(implicit ex:     ExecutionContext)
