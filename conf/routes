@@ -30,7 +30,6 @@ POST          /entries/:date/:meterId          controllers.models.MeterEntryCont
 # Silhouette
 GET           /signOut                         controllers.auth.SignOutController.signOut
 
-# POST          /verify/:provider                controllers.auth.SocialAuthController.authenticateToken(provider)
 GET           /is-signed-in                    controllers.auth.IsSignedInController.isSignedIn
 
 # POST        /signUp                          controllers.auth.SignUpController.submit

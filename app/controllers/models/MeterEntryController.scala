@@ -9,7 +9,7 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import play.api.i18n.{Messages, MessagesProvider}
+import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc._
 import utils.auth.DefaultEnv
