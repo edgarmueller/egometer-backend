@@ -15,7 +15,6 @@ error.boolean = Muss true oder false sein
 request.ok = Der Request wurde erfolgreich verarbeitet
 request.not.found = Die Daten konnten nicht gefunden werden
 request.service.unavailable = Der Service ist zur Zeit nicht erreichbar
-invalid.form = Das Formular enthält ungültige Daten
 
 ##########
 # AUTH
@@ -24,6 +23,7 @@ invalid.form = Das Formular enthält ungültige Daten
 auth.signed.in = Erfolgreich eingeloggt!
 auth.signed.out = Erfolgreich ausgeloggt!
 auth.invalid.credentials = Ungültige Zugangsdaten!
+auth.invalid.token = Ungültiges Token!
 auth.forbidden = Du hast keine Berechtigungen um auf diesen Endpunkt zuzugreifen!
 auth.unauthorized = Du hast keine Berechtigungen um auf diesen Endpunkt zuzugreifen!
 auth.user.not.found = User nicht gefunden
