@@ -1,8 +1,7 @@
 package controllers.models.common
 
-import play.api.data.FormError
 import play.api.http.Writeable
-import play.api.i18n.{I18nSupport, Messages, MessagesProvider}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsValue, Json, OWrites, Writes}
 import play.api.mvc.BaseController
 
@@ -20,21 +19,6 @@ trait ApiController extends BaseController with I18nSupport {
     jsonWritable: Writeable[JsValue]
   ): Writeable[MeterResponse[T]] = {
     jsonWritable.map(response => Json.toJson(response))
-  }
-
-  /**
-   * A JSON writes for a Play `FormError` instance.
-   *
-   * @param provider The Play message provider.
-   * @return A JSON writes.
-   */
-  implicit def formErrorWrites(implicit provider: MessagesProvider): Writes[FormError] = {
-    OWrites[FormError] { error =>
-      Json.obj(
-        "key" -> error.key,
-        "message" -> Messages(error.message, error.args: _*)
-      )
-    }
   }
 
   /**

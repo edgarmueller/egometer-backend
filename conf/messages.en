@@ -15,7 +15,6 @@ error.boolean = Must be true or false
 request.ok = The request was successfully processed
 request.not.found = The data couldn''t be found
 request.service.unavailable = The service is temporary unavailable
-invalid.form = The form contains invalid data
 
 ##########
 # AUTH
@@ -24,6 +23,7 @@ invalid.form = The form contains invalid data
 auth.signed.in = Successfully signed in!
 auth.signed.out = Successfully signed out!
 auth.invalid.credentials = Invalid credentials!
+auth.invalid.token = Invalid token!
 auth.forbidden = You don''t have permission to access this endpoint!
 auth.unauthorized = You don''t have permission to access this endpoint!
 auth.user.not.found = User not found
