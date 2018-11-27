@@ -28,8 +28,8 @@ auth.forbidden = You don''t have permission to access this endpoint!
 auth.unauthorized = You don''t have permission to access this endpoint!
 auth.user.not.found = User not found
 
-auth.signUp.invalid.data = "Invalid sign up data"
-auth.signUp.disabled = "Sign up is currently disabled, sorry!"
+auth.signUp.invalid.data = Invalid sign up data
+auth.signUp.disabled = Sign up is currently disabled, sorry!
 
 auth.sign.up.email.sent = You''re almost done! We sent an activation mail to {0}. Please follow the instructions in the email to activate your account. If it doesn''t arrive, check your spam folder, or try to log in again to send another activation mail.
 auth.account.activate.email.invalid = We cannot send an email to an invalid email address!

@@ -28,8 +28,8 @@ auth.forbidden = Du hast keine Berechtigungen um auf diesen Endpunkt zuzugreifen
 auth.unauthorized = Du hast keine Berechtigungen um auf diesen Endpunkt zuzugreifen!
 auth.user.not.found = User nicht gefunden
 
-auth.signUp.invalid.data = "Ungültige Daten"
-auth.signUp.disabled = "Leider ist die Registrierung derzeit deaktiviert, sorry!"
+auth.signUp.invalid.data = Ungültige Daten
+auth.signUp.disabled = Leider ist die Registrierung derzeit deaktiviert, sorry!
 
 auth.sign.up.email.sent = Du bist fast fertig! Wir haben eine Aktivierungs-E-Mail an die Adresse {0} gesendet. Bitte folge den Instruktionen in der E-Mail um deinen Account zu aktivieren. Solltest du keine E-Mail erhalten, dann prüfe bitte deinen Spam-Ordner oder versuche dich erneut einzuloggen um eine neue Aktivierungs-E-Mail zu senden.
 auth.activation.email.invalid = Wir können keine E-Mail zu einer ungültigen E-Mail-Adresse senden!
