@@ -5,9 +5,24 @@ Backend for egometer
 ## Getting started
 
 * Install MongoDB and start it, see [tutorial](https://docs.mongodb.com/v3.2/tutorial/install-mongodb-on-ubuntu/) for a how-to
-* Create a `application.local.conf` configuration file to configure the mailer plugin
+* Create a `application.local.conf` configuration file to include the following configuration:
 
 ```
+      swagger.api.uri = "http://localhost:9000"
+
+      mongodb.uri = "mongodb://localhost:27017:/egometer"
+
+      ui.url = "http://localhost:3000"
+
+      play.filters {
+        cors {
+          allowedOrigins = null
+        }
+        hosts {
+          allowed = ["."]
+        }
+      }
+
       play.mailer {
         host = "smtp.gmail.com"
         port = 587
@@ -24,6 +39,8 @@ Backend for egometer
       silhouette {
         google.clientID="<id>.apps.googleusercontent.com"
         google.clientSecret="<secret>"
+        authenticator.sharedSecret="<changeme>"
+        authenticator.crypter.key="<changeme>"
       }
 ```
 
