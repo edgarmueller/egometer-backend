@@ -65,27 +65,28 @@ class SignUpController @Inject() (
    *
    * @return A Play result.
    */
-  def signUp: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+  def signUp: Action[AnyContent] = (silhouette.UnsecuredAction andThen httpErrorRateLimitFunction).async {
+    implicit request =>
 
-    if (configuration.underlying.getOrElse("egometer.features.signUp", true)) {
-      readSignUpData(request) match {
-        case Left(error) =>
-          Future.successful(BadRequest(
-            MeterResponse("auth.signUp.invalid.data", Messages("auth.signUp.invalid.data"), JsError.toJson(error))
-          ))
-        case Right(signUpData) =>
-          val loginInfo = LoginInfo(CredentialsProvider.ID, signUpData.email)
-          userService.retrieve(loginInfo).flatMap {
-            case Some(user) if !user.registration.activated => handleInactiveUser(signUpData, user)
-            case Some(user) => handleExistingUser(signUpData, user)
-            case None => signUpNewUser(signUpData, loginInfo)
-          }.map { _ =>
-            Created(MeterResponse("auth.signUp.successful", Messages("auth.sign.up.email.sent", signUpData.email)))
-          }
+      if (configuration.underlying.getOrElse("egometer.features.signUp", true)) {
+        readSignUpData(request) match {
+          case Left(error) =>
+            Future.successful(BadRequest(
+              MeterResponse("auth.signUp.invalid.data", Messages("auth.signUp.invalid.data"), JsError.toJson(error))
+            ))
+          case Right(signUpData) =>
+            val loginInfo = LoginInfo(CredentialsProvider.ID, signUpData.email)
+            userService.retrieve(loginInfo).flatMap {
+              case Some(user) if !user.registration.activated => handleInactiveUser(signUpData, user)
+              case Some(user) => handleExistingUser(signUpData, user)
+              case None => signUpNewUser(signUpData, loginInfo)
+            }.map { _ =>
+              Created(MeterResponse("auth.signUp.successful", Messages("auth.sign.up.email.sent", signUpData.email)))
+            }
+        }
+      } else {
+        Future(BadRequest(MeterResponse("auth.signUp.disabled", Messages("auth.signUp.disabled"))))
       }
-    } else {
-      Future(BadRequest(MeterResponse("auth.signUp.disabled", Messages("auth.signUp.disabled"))))
-    }
   }
 
   /**

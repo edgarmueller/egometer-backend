@@ -1,9 +1,12 @@
 package controllers.models.common
 
+import com.digitaltangible.playguard._
 import play.api.http.Writeable
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsValue, Json, OWrites, Writes}
-import play.api.mvc.BaseController
+import play.api.mvc._
+
+import scala.concurrent.ExecutionContext
 
 /**
  * The base API controller.
@@ -42,6 +45,17 @@ trait ApiController extends BaseController with I18nSupport {
           "details" -> detail.writes(response.details)
         )
       }
+    }
+  }
+
+  // allow 2 failures immediately and get a new token every 10 seconds
+  val rateLimiter = new RateLimiter(2, 10f, "Failure rate limit")
+
+  protected def httpErrorRateLimitFunction(
+                                            implicit executionContext: ExecutionContext
+                                          ): FailureRateLimitFunction[Request] = {
+    HttpErrorRateLimitFunction[Request](rateLimiter) {
+      implicit r: RequestHeader => TooManyRequests("Failure rate exceeded")
     }
   }
 }

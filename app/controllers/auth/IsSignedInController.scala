@@ -17,16 +17,16 @@ class IsSignedInController @Inject()(
                                     (implicit ex: ExecutionContext)
   extends AbstractController(components) with ApiController {
 
-  def isSignedIn: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
-    silhouette.env.authenticatorService.retrieve(request).map(_.fold(
-      // TODO: I think this case can never happen
-      BadRequest(MeterResponse("auth.invalid.token", Messages("auth.invalid.token")))
-    )(t =>
-      // TODO: can we provide a sensible return value?
-      Ok(Json.obj(
-        "ttl" -> new Period(t.lastUsedDateTime, t.expirationDateTime).getSeconds
+  def isSignedIn: Action[AnyContent] = (silhouette.SecuredAction andThen httpErrorRateLimitFunction).async {
+    implicit request =>
+      silhouette.env.authenticatorService.retrieve(request).map(_.fold(
+        // TODO: I think this case can never happen
+        BadRequest(MeterResponse("auth.invalid.token", Messages("auth.invalid.token")))
+      )(t =>
+        // TODO: can we provide a sensible return value?
+        Ok(Json.obj(
+          "ttl" -> new Period(t.lastUsedDateTime, t.expirationDateTime).getSeconds
+        ))
       ))
-    ))
   }
-
 }

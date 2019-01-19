@@ -2,6 +2,7 @@ package controllers.auth
 
 import java.time.Clock
 
+import akka.actor.ActorSystem
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
@@ -40,12 +41,12 @@ class SignInController @Inject() (
                                    credentialsProvider:    CredentialsProvider,
                                    configuration:          Configuration,
                                    clock:                  Clock
-                                 )(implicit ex:     ExecutionContext)
+                                 )(implicit ex: ExecutionContext, actorSystem: ActorSystem)
   extends AbstractController(components) with ApiController with I18nSupport {
 
   import models.JsonFormats._
 
-  def signIn: Action[AnyContent] = silhouette.UnsecuredAction.async { implicit request =>
+  def signIn: Action[AnyContent] = (silhouette.UnsecuredAction andThen httpErrorRateLimitFunction).async { implicit request =>
     import models.JsonFormats._
     request.body.asJson
       .flatMap(_.validate[SignInInfo].asOpt)
