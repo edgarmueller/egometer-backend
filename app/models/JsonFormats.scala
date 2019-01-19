@@ -73,8 +73,16 @@ object JsonFormats{
   implicit val meterDaoFormat: OFormat[MeterDao] = Json.format[MeterDao]
   implicit val schemaDaoFormat: OFormat[SchemaDao] = Json.format[SchemaDao]
 
-
-  val signUpFormat: OFormat[SignUpData] = Json.format[SignUpData]
+  val signUpFormat: OFormat[SignUpData] = new OFormat[SignUpData] {
+    val signUpDataWrites: OWrites[SignUpData] = Json.writes[SignUpData]
+    val signUpDataReads: Reads[SignUpData] = (
+      (__ \ "name").read[String](minLength[String](3)) and
+      (__ \ "email").read[String](email) and
+        (__ \ "password").read[String](minLength[String](6))
+      )(SignUpData.apply _)
+    override def writes(signUpData: SignUpData): JsObject = signUpDataWrites.writes(signUpData)
+    override def reads(json: JsValue): JsResult[SignUpData] = signUpDataReads.reads(json)
+  }
 
   val oauth2InfoReads: Reads[OAuth2Info] =
     (
