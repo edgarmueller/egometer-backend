@@ -52,7 +52,7 @@ class MeterEntryRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: 
       _.find(selector)
         .sort(Json.obj("date" -> 1))
         .cursor[MeterEntry](ReadPreference.primary)
-        .collect[Seq](100, Cursor.FailOnError[Seq[MeterEntry]]())
+        .collect[Seq](1000, Cursor.FailOnError[Seq[MeterEntry]]())
     )
   }
 

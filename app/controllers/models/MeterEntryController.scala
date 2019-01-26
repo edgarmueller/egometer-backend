@@ -9,6 +9,7 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
+import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc._
@@ -89,7 +90,9 @@ class MeterEntryController @Inject()(
             )
           )
 
-          findEntries(selector).map(groupedEntries => Ok(Json.toJson(groupedEntries)))
+          findEntries(selector).map(groupedEntries =>
+            Ok(Json.toJson(groupedEntries))
+          )
         })
         .getOrElse(Future.successful(BadRequest(MeterResponse("invalid.date.format", Messages("invalid.date.format")))))
     }
