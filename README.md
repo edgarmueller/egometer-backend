@@ -1,6 +1,6 @@
 # egometer-backend
 
-Backend for egometer
+This is the backend part of egometer. See [egometer-frontend](https://github.com/edgarmueller/egometer-frontend) for the React-based frontend.
 
 ## Getting started
 
