@@ -42,6 +42,8 @@ class MeterControllerSpec
         "New mood meter",
         visualization = "whatever",
         color = "#aaa",
+        None,
+        None,
         None
       )
       val content: JsValue = contentAsJson(
