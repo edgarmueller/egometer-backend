@@ -19,7 +19,9 @@ case class MeterDao(
                   name: String,
                   visualization: String,
                   color: String,
-                  userId: Option[UUID]
+                  userId: Option[UUID],
+                  dailyGoal: Option[Int],
+                  weeklyGoal: Option[Int]
                 )
 
 object MeterDao {
@@ -30,7 +32,9 @@ object MeterDao {
       meter.name,
       meter.visualization,
       meter.color,
-      meter.userId
+      meter.userId,
+      meter.dailyGoal,
+      meter.weeklyGoal
     )
   }
 }
@@ -41,7 +45,9 @@ case class Meter(
                   name: String,
                   visualization: String,
                   color: String,
-                  userId: Option[UUID]
+                  userId: Option[UUID],
+                  dailyGoal: Option[Int],
+                  weeklyGoal: Option[Int]
                 )
 
 class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
@@ -99,12 +105,14 @@ class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: React
       "$set" -> BSONDocument(
         "color" -> meter.color,
         "visualization" -> meter.visualization,
-        "name" -> meter.name
+        "name" -> meter.name,
+        "dailyGoal" -> meter.dailyGoal,
+        "weeklyGoal" -> meter.weeklyGoal
       )
     )
 
-      meterCollection.flatMap(
-        _.findAndUpdate(selector, updateModifier, fetchNewObject = true).map(_.result[Meter])
-      )
+    meterCollection.flatMap(
+      _.findAndUpdate(selector, updateModifier, fetchNewObject = true).map(_.result[Meter])
+    )
   }
 }
