@@ -30,7 +30,7 @@ object MeterDao {
       meter._id.map(_.stringify),
       meter.schemaId,
       meter.name,
-      meter.visualization,
+      meter.widget,
       meter.color,
       meter.userId,
       meter.dailyGoal,
@@ -43,7 +43,7 @@ case class Meter(
                   _id: Option[BSONObjectID],
                   schemaId: String,
                   name: String,
-                  visualization: String,
+                  widget: String,
                   color: String,
                   userId: Option[UUID],
                   dailyGoal: Option[Int],
@@ -60,40 +60,38 @@ class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: React
     BSONObjectID.parse(meterId)
       .fold(
         Future.failed,
-        id => meterCollection.flatMap(_.find(BSONDocument("_id" -> id)).one[Meter])
+        id => meterCollection.flatMap(_.find[BSONDocument, Meter](BSONDocument("_id" -> id)).one[Meter])
       )
   }
 
   def query(selector: JsObject): Future[Seq[Meter]] = {
-    meterCollection.flatMap(_.find(selector)
+    meterCollection.flatMap(_.find[JsObject, Meter](selector)
       .cursor[Meter](ReadPreference.primary)
       .collect[Seq](100, Cursor.FailOnError[Seq[Meter]]())
     )
   }
 
   def queryFirst(selector: JsObject): Future[Option[Meter]] = {
-    meterCollection.flatMap(_.find(selector)
-      .one[Meter]
-    )
+    meterCollection.flatMap(_.find[JsObject, Meter](selector).one[Meter])
   }
 
   def exists(meterId: String): Future[Boolean] = {
     BSONObjectID.parse(meterId)
       .fold(
         Future.failed,
-        id => meterCollection.flatMap(_.find(BSONDocument("_id" -> id)).one[Meter].map(_.isDefined))
+        id => meterCollection.flatMap(_.find[BSONDocument, Meter](BSONDocument("_id" -> id)).one[Meter].map(_.isDefined))
       )
   }
 
   def getMeter(id: BSONObjectID): Future[Option[Meter]] = {
     val query = BSONDocument("_id" -> id)
-    meterCollection.flatMap(_.find(query).one[Meter])
+    meterCollection.flatMap(_.find[BSONDocument, Meter](query).one[Meter])
   }
 
   def addMeter(meter: Meter): Future[WriteResult] = {
     // TODO: validate meter
     // TODO: validate existence of schema with given schema id
-    meterCollection.flatMap(_.insert(meter))
+    meterCollection.flatMap(_.insert(ordered = false).one(meter))
   }
 
   def deleteMeter(query: JsObject): Future[Option[Meter]] = {
@@ -104,7 +102,7 @@ class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: React
     val updateModifier = BSONDocument(
       "$set" -> BSONDocument(
         "color" -> meter.color,
-        "visualization" -> meter.visualization,
+        "widget" -> meter.widget,
         "name" -> meter.name,
         "dailyGoal" -> meter.dailyGoal,
         "weeklyGoal" -> meter.weeklyGoal

@@ -47,7 +47,7 @@ class AuthTokenServiceImpl @Inject() (
    * @param id The token ID to validate.
    * @return The token if it's valid, None otherwise.
    */
-  def validate(id: UUID): Future[Option[AuthToken]] = authTokenDAO.find(id)
+  def validate(id: UUID): Future[Option[AuthToken]] = authTokenDAO.findByUUID(id)
 
   /**
    * Cleans expired tokens.

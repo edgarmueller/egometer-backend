@@ -18,7 +18,7 @@ trait AuthTokenDAO {
    * @param id The unique token ID.
    * @return The found token or None if no token for the given ID could be found.
    */
-  def find(id: UUID): Future[Option[AuthToken]]
+  def findByUUID(id: UUID): Future[Option[AuthToken]]
 
   /**
    * Finds expired tokens.

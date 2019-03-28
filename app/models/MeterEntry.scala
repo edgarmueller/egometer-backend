@@ -49,7 +49,7 @@ class MeterEntryRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: 
   def query(selector: JsObject): Future[Seq[MeterEntry]] = {
     import JsonFormats.meterEntryFormat
     meterEntryCollection.flatMap(
-      _.find(selector)
+      _.find[JsObject, MeterEntry](selector)
         .sort(Json.obj("date" -> 1))
         .cursor[MeterEntry](ReadPreference.primary)
         .collect[Seq](1000, Cursor.FailOnError[Seq[MeterEntry]]())
@@ -85,5 +85,5 @@ class MeterEntryRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: 
   }
 
   def deleteEntries(query: JsObject): Future[WriteResult] =
-    meterEntryCollection.flatMap(_.remove(query))
+    meterEntryCollection.flatMap(_.delete().one(query))
 }

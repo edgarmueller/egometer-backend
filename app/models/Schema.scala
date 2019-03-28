@@ -36,30 +36,30 @@ class SchemaRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: Reac
     reactiveMongoApi.database.map(_.collection("schemas"))
 
   def query(selector: JsObject): Future[Seq[Schema]] = {
-    schemaCollection.flatMap(_.find(selector)
+    schemaCollection.flatMap(_.find[JsObject, Schema](selector)
       .cursor[Schema](ReadPreference.primary)
       .collect[Seq](100, Cursor.FailOnError[Seq[Schema]]())
     )
   }
 
   def queryFirst(selector: JsObject): Future[Option[Schema]] =
-    schemaCollection.flatMap(_.find(selector).one[Schema])
+    schemaCollection.flatMap(_.find[JsObject, Schema](selector).one[Schema])
 
   def findById(schemaId: String): Future[Option[Schema]] = {
     BSONObjectID.parse(schemaId)
       .fold(
         Future.failed,
-        id => schemaCollection.flatMap(_.find(BSONDocument("_id" -> id)).one[Schema])
+        id => schemaCollection.flatMap(_.find[BSONDocument, Schema](BSONDocument("_id" -> id)).one[Schema])
       )
   }
 
   def getMeterSchema(meterSchemaId: BSONObjectID): Future[Option[Schema]] = {
     val query = BSONDocument("_id" -> meterSchemaId)
-    schemaCollection.flatMap(_.find(query).one[Schema])
+    schemaCollection.flatMap(_.find[BSONDocument, Schema](query).one[Schema])
   }
 
   def addMeterSchema(meterSchema: Schema): Future[WriteResult] = {
-    schemaCollection.flatMap(_.insert(meterSchema))
+    schemaCollection.flatMap(_.insert(ordered = false).one(meterSchema))
   }
 
   def deleteSchema(query: JsObject): Future[Option[Schema]] = {

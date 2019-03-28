@@ -6,8 +6,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.4"
 
-val reactiveMongoVer = "0.13.0-play26"
-
 resolvers += Resolver.jcenterRepo
 
 resolvers += "emueller-bintray" at "http://dl.bintray.com/emueller/maven"
@@ -16,7 +14,7 @@ libraryDependencies ++= Seq(
   guice,
   ehcache,
   filters,
-  "org.reactivemongo"      %% "play2-reactivemongo"        % reactiveMongoVer,
+  "org.reactivemongo"      %% "play2-reactivemongo"        %  "0.16.5-play26",
   "io.swagger"             %% "swagger-play2"              % "1.6.0",
   "org.webjars"            %  "swagger-ui"                 % "3.2.2",
   "com.eclipsesource"      %% "play-json-schema-validator" % "0.9.5-M4",
@@ -33,16 +31,17 @@ libraryDependencies ++= Seq(
   "org.specs2"             %% "specs2-matcher-extra"       % "3.8.9"  % "test",
   "org.specs2"             %% "specs2-mock"                % "3.8.9"  % "test",
   "de.flapdoodle.embed"    % "de.flapdoodle.embed.mongo"   % "2.0.0"  % "test",
-  "com.typesafe.akka"      %% "akka-testkit"               % "2.5.4"  % "test"
+  "com.typesafe.akka"      %% "akka-testkit"               % "2.5.4"  % "test",
+  "javax.xml.bind"          % "jaxb-api"                   % "2.3.0"
 )
 
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-silhouette" % "5.0.0",
-  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.0",
-  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.0",
-  "com.mohiva" %% "play-silhouette-persistence" % "5.0.0",
-  "com.mohiva" %% "play-silhouette-testkit" % "5.0.0" % "test",
-  "com.mohiva" %% "play-silhouette-persistence-reactivemongo" % "5.0.1"
+  "com.mohiva" %% "play-silhouette" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-persistence" % "5.0.6",
+  "com.mohiva" %% "play-silhouette-testkit" % "5.0.6" % "test",
+  "com.mohiva" %% "play-silhouette-persistence-reactivemongo" % "5.0.6"
 )
 
 import play.sbt.routes.RoutesKeys

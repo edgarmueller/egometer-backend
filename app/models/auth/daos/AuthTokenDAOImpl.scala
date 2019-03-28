@@ -5,10 +5,12 @@ import java.util.UUID
 
 import javax.inject.Inject
 import models.auth.AuthToken
-import play.api.libs.json.Json
+import play.api.libs.json.{Json}
 import play.modules.reactivemongo.ReactiveMongoApi
-import play.modules.reactivemongo.json._
+import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.collection.JSONCollection
+import reactivemongo.play.json.JsObjectDocumentWriter
+import reactivemongo.play.json.BSONDocumentWrites
 import utils.mongo.MongoModel
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,7 +26,7 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
   val ec: ExecutionContext
 ) extends AuthTokenDAO with MongoModel {
 
-  import models.JsonFormats.MongoFormats._
+  import models.JsonFormats.MongoFormats.{authTokenReads, authTokenWrites}
 
   /**
     * The MongoDB collection.
@@ -37,7 +39,7 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
     * @param id The unique token ID.
     * @return The found token or None if no token for the given ID could be found.
     */
-  def find(id: UUID): Future[Option[AuthToken]] = collection.flatMap(_.find(Json.obj("_id" -> id)).one[AuthToken])
+  def findByUUID(id: UUID): Future[Option[AuthToken]] = collection.flatMap(_.find[BSONDocument, AuthToken](BSONDocument("_id" -> id.toString), None).one[AuthToken])
 
   /**
     * Finds expired tokens.
@@ -45,7 +47,7 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
     * @param instant The current instant.
     */
   def findExpired(instant: Instant): Future[Seq[AuthToken]] =
-    find[AuthToken](Json.obj("expiry" -> Json.obj("$lte" -> instant)))
+    find(Json.obj("expiry" -> Json.obj("$lte" -> instant)))
 
   /**
     * Saves a token.
@@ -55,9 +57,11 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
     * @param token The token to save.
     * @return The saved token.
     */
-  def save(token: AuthToken): Future[AuthToken] = onSuccess(collection.flatMap(
-    _.update(Json.obj("_id" -> token.id), token, upsert = true)
-  ), token)
+  def save(token: AuthToken): Future[AuthToken] = onSuccess(
+    collection.flatMap(
+      _.update(ordered = false)
+        .one(Json.obj("_id" -> token.id), token, upsert = true)
+    ), token)
 
   /**
     * Removes the token for the given ID.
@@ -65,5 +69,5 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
     * @param id The ID for which the token should be removed.
     * @return A future to wait for the process to be completed.
     */
-  def remove(id: UUID): Future[Unit] = onSuccess(collection.flatMap(_.remove(Json.obj("_id" -> id))), ())
+  def remove(id: UUID): Future[Unit] = onSuccess(collection.flatMap(_.delete.one(Json.obj("_id" -> id))), ())
 }

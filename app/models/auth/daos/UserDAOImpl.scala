@@ -10,14 +10,15 @@ import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
+import reactivemongo.play.json.JsObjectDocumentWriter
+import reactivemongo.play.json.BSONDocumentWrites
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * Give access to the user object.
- */
+  * Give access to the user object.
+  */
 class UserDAOImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi) extends UserDAO {
 
   import models.JsonFormats.userFormat
@@ -25,15 +26,15 @@ class UserDAOImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: Rea
   def userCollection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection("users"))
 
   /**
-   * Finds a user by its login info.
-   *
-   * @param loginInfo The login info of the user to find.
-   * @return The found user or None if no user for the given login info could be found.
-   */
+    * Finds a user by its login info.
+    *
+    * @param loginInfo The login info of the user to find.
+    * @return The found user or None if no user for the given login info could be found.
+    */
   def find(loginInfo: LoginInfo): Future[Option[User]] = {
     userCollection
       .flatMap(
-        _.find(
+        _.find[BSONDocument, User](
           BSONDocument("loginInfo" ->
             BSONDocument(
               "providerID" -> loginInfo.providerID,
@@ -45,13 +46,13 @@ class UserDAOImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: Rea
   }
 
   /**
-   * Finds a user by its user ID.
-   *
-   * @param userId The ID of the user to find.
-   * @return The found user or None if no user for the given ID could be found.
-   */
+    * Finds a user by its user ID.
+    *
+    * @param userId The ID of the user to find.
+    * @return The found user or None if no user for the given ID could be found.
+    */
   def find(userId: UUID): Future[Option[User]] =
-    userCollection.flatMap(_.find(BSONDocument("id" -> userId.toString)).one[User])
+    userCollection.flatMap(_.find[BSONDocument, User](BSONDocument("id" -> userId.toString)).one[User])
 
   /**
     * Returns some result on success and None on error.
@@ -72,19 +73,21 @@ class UserDAOImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: Rea
 
 
   /**
-   * Saves a user.
-   *
-   * @param user The user to save.
-   * @return The saved user.
-   */
+    * Saves a user.
+    *
+    * @param user The user to save.
+    * @return The saved user.
+    */
   def save(user: User): Future[User] = {
     onSuccess(userCollection.flatMap(
       _.update(
-        // TODO: id
-        Json.obj("id" -> user.id.toString),
-        user,
-        upsert = true
-      )
+        ordered = false)
+        .one(
+          // TODO: id
+          Json.obj("id" -> user.id.toString),
+          user,
+          upsert = true
+        )
     ), user)
   }
 }
