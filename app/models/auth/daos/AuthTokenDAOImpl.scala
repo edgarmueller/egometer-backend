@@ -5,15 +5,16 @@ import java.util.UUID
 
 import javax.inject.Inject
 import models.auth.AuthToken
-import play.api.libs.json.{Json}
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.{Cursor, ReadPreference}
+import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import reactivemongo.play.json.collection.JSONCollection
 import reactivemongo.play.json.JsObjectDocumentWriter
 import reactivemongo.play.json.BSONDocumentWrites
 import utils.mongo.MongoModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
   * Give access to the [[models.auth.AuthToken]] object.
@@ -46,8 +47,14 @@ class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
     *
     * @param instant The current instant.
     */
-  def findExpired(instant: Instant): Future[Seq[AuthToken]] =
-    find(Json.obj("expiry" -> Json.obj("$lte" -> instant)))
+  def findExpired(instant: Instant): Future[Seq[AuthToken]] = {
+    val query = BSONDocument("expiry" -> BSONDocument("$lte" -> BSONDateTime(instant.toEpochMilli)))
+    val res = collection
+      .flatMap(_.find[BSONDocument, AuthToken](query, None)
+      .cursor(ReadPreference.nearest)
+      .collect[List](Int.MaxValue, Cursor.FailOnError[List[AuthToken]]()))
+    res
+  }
 
   /**
     * Saves a token.

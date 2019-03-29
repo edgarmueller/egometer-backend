@@ -64,13 +64,13 @@ trait MongoSpecification extends BaseSpecification {
        * Inserts the test fixtures.
        */
       def before: Unit = {
-        import play.modules.reactivemongo.json._
+        import reactivemongo.play.json._
         Await.result(reactiveMongoAPI.database.flatMap { db =>
           Future.sequence(fixtures.flatMap {
             case (c, files) =>
               val collection = db.collection[JSONCollection](c)
               files.map { file =>
-                collection.insert(BaseFixture.load(Paths.get(file)).as[JsObject])
+                collection.insert(ordered = false).one(BaseFixture.load(Paths.get(file)).as[JsObject])
               }
           })
         }, Duration(60, SECONDS))
@@ -81,7 +81,7 @@ trait MongoSpecification extends BaseSpecification {
        */
       def after: Unit = {
         Await.result(reactiveMongoAPI.database.flatMap { db =>
-          db.runCommand(DropDatabase, FailoverStrategy.default)
+          db.drop()// .runCommand(DropDatabase, FailoverStrategy.default)
         }, Duration(60, SECONDS))
       }
     }

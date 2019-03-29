@@ -40,7 +40,7 @@ class MeterControllerSpec
         Some(BSONObjectID.generate()),
         "5ac9065704040014c266ceb3",
         "New mood meter",
-        visualization = "whatever",
+        widget = "whatever",
         color = "#aaa",
         None,
         None,

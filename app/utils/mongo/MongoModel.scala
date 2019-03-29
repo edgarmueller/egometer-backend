@@ -3,10 +3,8 @@ package utils.mongo
 import com.mohiva.play.silhouette.persistence.exceptions.MongoException
 import play.api.libs.json.{JsObject, Reads}
 import reactivemongo.play.json.JsObjectDocumentWriter
-import reactivemongo.api.collections.GenericQueryBuilder
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.{Cursor, ReadPreference}
-import reactivemongo.play.json.JSONSerializationPack
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -15,7 +13,6 @@ import scala.concurrent.{ExecutionContext, Future}
  * Base model for all models which persists data in a MongoDB.
  */
 trait MongoModel {
-//  type JSONQueryBuilder = GenericQueryBuilder[JSONSerializationPack.type]
 
   /**
    * The execution context.
@@ -30,25 +27,17 @@ trait MongoModel {
   /**
    * Helper method to query documents.
    *
-   * @param query         The query to execute.
-   * @param queryModifier An optional query modifier function.
+   * @param selector         The query to execute.
    * @param maxDocs       The max number of docs to query.
    * @param reader        The JSON reads.
    * @tparam T            The type of the document to read.
    * @return The list of found documents.
    */
   protected def find[T](
-//    query: JsObject,
     selector: JsObject,
-//    queryModifier: Option[JSONQueryBuilder => JSONQueryBuilder] = None,
     maxDocs: Int = Int.MaxValue
-  )(
-    implicit
-    reader: Reads[T]
-  ): Future[List[T]] = collection.flatMap { coll =>
+  )(implicit reader: Reads[T]): Future[List[T]] = collection.flatMap { coll =>
     coll.find(selector, None).cursor(ReadPreference.nearest).collect[List](maxDocs, Cursor.FailOnError[List[T]]())
-//    queryModifier.map(f => f(coll.find(query, None))).getOrElse(coll.find(query, None))
-//      .cursor[T](ReadPreference.nearest).collect[List](maxDocs, Cursor.FailOnError[List[T]]())
   }
 
   /**

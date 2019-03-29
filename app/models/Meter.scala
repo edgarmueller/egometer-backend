@@ -17,7 +17,7 @@ case class MeterDao(
                   id: Option[String],
                   schemaId: String,
                   name: String,
-                  visualization: String,
+                  widget: String,
                   color: String,
                   userId: Option[UUID],
                   dailyGoal: Option[Int],

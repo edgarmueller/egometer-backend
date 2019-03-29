@@ -42,10 +42,10 @@ class AuthTokenServiceImplSpec extends PlaySpecification with Mockito with NoLan
       val id = UUID.randomUUID()
       val token = AuthToken(id, UUID.randomUUID(), clock.instant())
 
-      dao.find(id) returns Future.successful(Some(token))
+      dao.findByUUID(id) returns Future.successful(Some(token))
 
       await(service.validate(id)) must beSome(token)
-      there was one(dao).find(id)
+      there was one(dao).findByUUID(id)
     }
   }
 

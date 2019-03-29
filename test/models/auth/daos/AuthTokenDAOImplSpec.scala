@@ -15,13 +15,13 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
   "The `find` method" should {
     "find a token for the given ID" in new Context {
       new WithApplication(application) with MongoScope {
-        await(dao.find(id)) must beSome(token)
+        await(dao.findByUUID(id)) must beSome(token)
       }
     }
 
     "return None if no auth info for the given login info exists" in new Context {
       new WithApplication(application) with MongoScope {
-        await(dao.find(UUID.randomUUID())) must beNone
+        await(dao.findByUUID(UUID.randomUUID())) must beNone
       }
     }
   }
@@ -41,7 +41,7 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
         val newToken: AuthToken = token.copy(id = UUID.randomUUID())
 
         await(dao.save(newToken)) must be equalTo newToken
-        await(dao.find(newToken.id)) must beSome(newToken)
+        await(dao.findByUUID(newToken.id)) must beSome(newToken)
       }
     }
 
@@ -50,7 +50,7 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
         val updatedToken: AuthToken = token.copy(expiry = Instant.now())
 
         await(dao.save(updatedToken)) must be equalTo updatedToken
-        await(dao.find(token.id)) must beSome(updatedToken)
+        await(dao.findByUUID(token.id)) must beSome(updatedToken)
       }
     }
   }
@@ -59,7 +59,7 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
     "remove a token" in new Context {
       new WithApplication(application) with MongoScope {
         await(dao.remove(id))
-        await(dao.find(id)) must beNone
+        await(dao.findByUUID(id)) must beNone
       }
     }
   }
