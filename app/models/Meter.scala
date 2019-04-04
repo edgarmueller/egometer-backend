@@ -20,6 +20,7 @@ case class MeterDao(
                   widget: String,
                   color: String,
                   userId: Option[UUID],
+                  icon: Option[String],
                   dailyGoal: Option[Int],
                   weeklyGoal: Option[Int]
                 )
@@ -33,6 +34,7 @@ object MeterDao {
       meter.widget,
       meter.color,
       meter.userId,
+      meter.icon,
       meter.dailyGoal,
       meter.weeklyGoal
     )
@@ -46,6 +48,7 @@ case class Meter(
                   widget: String,
                   color: String,
                   userId: Option[UUID],
+                  icon: Option[String],
                   dailyGoal: Option[Int],
                   weeklyGoal: Option[Int]
                 )
@@ -104,6 +107,7 @@ class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: React
         "color" -> meter.color,
         "widget" -> meter.widget,
         "name" -> meter.name,
+        "icon" -> meter.icon,
         "dailyGoal" -> meter.dailyGoal,
         "weeklyGoal" -> meter.weeklyGoal
       )

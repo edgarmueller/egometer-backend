@@ -44,6 +44,7 @@ class MeterControllerSpec
         color = "#aaa",
         None,
         None,
+        None,
         None
       )
       val content: JsValue = contentAsJson(
