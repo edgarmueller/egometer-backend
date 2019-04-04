@@ -10,6 +10,8 @@ resolvers += Resolver.jcenterRepo
 
 resolvers += "emueller-bintray" at "http://dl.bintray.com/emueller/maven"
 
+autoAPIMappings := true
+
 libraryDependencies ++= Seq(
   guice,
   ehcache,

@@ -129,7 +129,7 @@ object JsonFormats{
     }
 
     /**
-      * Converts [[java.util.UUID]] object to JSON and vice versa.
+      * Converts UUID object to JSON and vice versa.
       */
     implicit object UUIDFormat extends Format[UUID] {
       def reads(json: JsValue): JsResult[UUID] = Try(UUID.fromString(json.as[String])) match {
@@ -153,7 +153,7 @@ object JsonFormats{
   trait CoreMongoFormats extends Formats {
 
     /**
-      * Converts [[java.time.Instant]] object to JSON and vice versa.
+      * Converts Instant object to JSON and vice versa.
       */
     implicit object InstantFormat extends Format[Instant] {
       def reads(json: JsValue): JsResult[Instant] =
@@ -172,12 +172,12 @@ object JsonFormats{
     implicit val passwordInfoFormat: OFormat[PasswordInfo] = Json.format
 
     /**
-      * Converts JSON into a [[AuthToken]] instance.
+      * Converts JSON into a [[models.auth.AuthToken]] instance.
       */
     implicit val authTokenReads: Reads[AuthToken] = IDReads("id") andThen Json.reads
 
     /**
-      * Converts a [[AuthToken]] instance to JSON.
+      * Converts a [[models.auth.AuthToken]] instance to JSON.
       */
     implicit val authTokenWrites: OWrites[AuthToken] = Json.writes.transform(IDWrites("id"))
   }
