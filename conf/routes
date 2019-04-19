@@ -3,57 +3,52 @@
 # ~~~~
 
 # Schemas --
-GET           /schemas                         controllers.models.SchemaController.getAllMeterSchemas
-GET           /schemas/:id                     controllers.models.SchemaController.getMeterSchema(id: String)
+GET           /api/v1/schemas                         controllers.models.SchemaController.getAllMeterSchemas
+GET           /api/v1/schemas/:id                     controllers.models.SchemaController.getMeterSchema(id: String)
 + nocsrf
-POST          /schemas                         controllers.models.SchemaController.addMeterSchema
+POST          /api/v1/schemas                         controllers.models.SchemaController.addMeterSchema
 + nocsrf
-DELETE        /schemas/:id                     controllers.models.SchemaController.deleteMeterSchema(id: String)
+DELETE        /api/v1/schemas/:id                     controllers.models.SchemaController.deleteMeterSchema(id: String)
 
 # Meter --
-GET           /meters                          controllers.models.MeterController.getAllMeters
-GET           /meters/:id                      controllers.models.MeterController.getMeter(id: String)
+GET           /api/v1/meters                          controllers.models.MeterController.getAllMeters
+GET           /api/v1/meters/:id                      controllers.models.MeterController.getMeter(id: String)
 # + nocsrf
-POST          /meters/:id                      controllers.models.MeterController.updateMeter(id: String)
+POST          /api/v1/meters/:id                      controllers.models.MeterController.updateMeter(id: String)
 + nocsrf
-POST          /meters                          controllers.models.MeterController.createMeter
+POST          /api/v1/meters                          controllers.models.MeterController.createMeter
 + nocsrf
-DELETE        /meters/:id                      controllers.models.MeterController.deleteMeter(id: String)
+DELETE        /api/v1/meters/:id                      controllers.models.MeterController.deleteMeter(id: String)
 
 # Meter entries --
-GET           /entries/:date                   controllers.models.MeterEntryController.findMonthlyEntriesByDate(date: String)
-GET           /entries/:date/:meterId          controllers.models.MeterEntryController.findMonthlyMeterEntriesByDate(date: String, meterId: String)
+GET           /api/v1/entries/:date                   controllers.models.MeterEntryController.findMonthlyEntriesByDate(date: String)
+GET           /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.findMonthlyMeterEntriesByDate(date: String, meterId: String)
 
 + nocsrf
-POST          /entries/:date/:meterId          controllers.models.MeterEntryController.upsertMeterEntry(meterId: String, date: String)
+POST          /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.upsertMeterEntry(meterId: String, date: String)
 
-# Silhouette
-GET           /signOut                         controllers.auth.SignOutController.signOut
-
-GET           /is-signed-in                    controllers.auth.IsSignedInController.isSignedIn
-
-# POST        /signUp                          controllers.auth.SignUpController.submit
+GET           /api/v1/is-signed-in                    controllers.auth.IsSignedInController.isSignedIn
 
 + nocsrf
-POST          /sign-in                         controllers.auth.SignInController.signIn
-# POST          /sign-out                        controllers.auth.SignOutController.signOut
+POST          /api/v1/sign-in                         controllers.auth.SignInController.signIn
+POST          /api/v1/sign-out                        controllers.auth.SignOutController.signOut
 + nocsrf
-POST          /sign-up                         controllers.auth.SignUpController.signUp
-GET           /sign-out                        controllers.auth.SignOutController.signOut
+POST          /api/v1/sign-up                         controllers.auth.SignUpController.signUp
+GET           /api/v1//sign-out                       controllers.auth.SignOutController.signOut
 
-POST          /account/activation              controllers.auth.AccountController.send
-GET           /account/activation/:token       controllers.auth.AccountController.activate(token: java.util.UUID)
+POST          /api/v1/account/activation              controllers.auth.AccountController.send
+GET           /api/v1/account/activation/:token       controllers.auth.AccountController.activate(token: java.util.UUID)
 
-POST         /password/recovery                controllers.auth.PasswordController.recover
-GET          /password/recovery/:token         controllers.auth.PasswordController.validate(token: java.util.UUID)
-POST         /password/recovery/:token         controllers.auth.PasswordController.reset(token: java.util.UUID)
+POST         /api/v1/password/recovery                controllers.auth.PasswordController.recover
+GET          /api/v1/password/recovery/:token         controllers.auth.PasswordController.validate(token: java.util.UUID)
+POST         /api/v1/password/recovery/:token         controllers.auth.PasswordController.reset(token: java.util.UUID)
 
-# GET         /account/email/:email            controllers.ActivateAccountController.send(email: String)
+# GET         /api/v1/account/email/:email            controllers.ActivateAccountController.send(email: String)
 
 # Swagger docs
-GET          /                                 controllers.models.ApiDocsController.redirectToDocs
-GET          /swagger.json                     controllers.ApiHelpController.getResources
-GET          /api-docs                         controllers.models.ApiDocsController.redirectToDocs
+GET          /                                        controllers.models.ApiDocsController.redirectToDocs
+GET          /api/v1/swagger.json                     controllers.ApiHelpController.getResources
+GET          /api/v1/api-docs                         controllers.models.ApiDocsController.redirectToDocs
 
 # Map static resources from the /public folder to the /assets URL path
-GET          /assets/*file                     controllers.Assets.versioned(path="/public", file: Asset)
+GET          /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)

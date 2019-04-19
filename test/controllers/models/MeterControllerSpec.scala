@@ -27,7 +27,7 @@ class MeterControllerSpec
         val content: JsValue = contentAsJson(
           route(
             application,
-            FakeRequest(GET, "/meters").withAuthenticator(loginInfo)
+            FakeRequest(GET, "/api/v1/meters").withAuthenticator(loginInfo)
           ).get
         )
 
@@ -50,7 +50,7 @@ class MeterControllerSpec
       val content: JsValue = contentAsJson(
         route(
           application,
-          FakeRequest(POST, "/meters")
+          FakeRequest(POST, "/api/v1/meters")
             .withAuthenticator[DefaultEnv](loginInfo)
             .withJsonBody(Json.toJson(newMeter))
         ).get)
@@ -61,7 +61,7 @@ class MeterControllerSpec
       val allMeters: JsValue = contentAsJson(
         route(
           application,
-          FakeRequest(GET, "/meters").withAuthenticator(loginInfo)
+          FakeRequest(GET, "/api/v1/meters").withAuthenticator(loginInfo)
         ).get
       )
       allMeters.as[JsArray].value.size must beEqualTo(1)
@@ -80,7 +80,7 @@ class MeterControllerSpec
       val content: JsValue = contentAsJson(
         route(
           application,
-          FakeRequest(GET, s"/entries/$date").withAuthenticator(loginInfo)
+          FakeRequest(GET, s"/api/v1/entries/$date").withAuthenticator(loginInfo)
         ).get
       )
 

@@ -27,7 +27,7 @@ class MeterEntryControllerSpec
         val content: JsValue = contentAsJson(
           route(
             application,
-            FakeRequest(GET, s"/entries/$date").withAuthenticator(loginInfo)
+            FakeRequest(GET, s"/api/v1/entries/$date").withAuthenticator(loginInfo)
           ).get
         )
 

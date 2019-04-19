@@ -16,7 +16,7 @@ class SchemaControllerSpec extends AuthSpec with MongoSpecification {
     )
 
     new WithApplication(application) with MongoScope {
-      val Some(result) = route(application, FakeRequest(GET, "/schemas").withAuthenticator(loginInfo))
+      val Some(result) = route(application, FakeRequest(GET, "/api/v1/schemas").withAuthenticator(loginInfo))
       val resultList: JsValue = contentAsJson(result)
 
       resultList.as[Seq[Schema]].length mustEqual 1
