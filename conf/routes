@@ -34,7 +34,6 @@ POST          /api/v1/sign-in                         controllers.auth.SignInCon
 POST          /api/v1/sign-out                        controllers.auth.SignOutController.signOut
 + nocsrf
 POST          /api/v1/sign-up                         controllers.auth.SignUpController.signUp
-GET           /api/v1//sign-out                       controllers.auth.SignOutController.signOut
 
 POST          /api/v1/account/activation              controllers.auth.AccountController.send
 GET           /api/v1/account/activation/:token       controllers.auth.AccountController.activate(token: java.util.UUID)
