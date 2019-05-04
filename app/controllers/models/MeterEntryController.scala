@@ -72,7 +72,7 @@ class MeterEntryController @Inject()(
     response = classOf[MeterEntry],
     responseContainer = "Map"
   )
-  def findMonthlyEntriesByDate(date: String): Action[AnyContent] = {
+  def findEntriesByDate(date: String, days: Option[Int]): Action[AnyContent] = {
     import JsonFormats._
     import org.joda.time.format.DateTimeFormat
     silhouette.SecuredAction.async { implicit request =>
@@ -80,8 +80,7 @@ class MeterEntryController @Inject()(
       Try { fmt.parseLocalDate(date) }
         .map(fromDate => {
           val startDate = fromDate.minusDays(fromDate.getDayOfMonth - 1)
-          val maxDayOfMonth: Int = fromDate.dayOfMonth().withMaximumValue().getDayOfMonth
-          val endDate = fromDate.plusDays(maxDayOfMonth - fromDate.getDayOfMonth)
+          val endDate = fromDate.plusDays(days.getOrElse(31))
 
           val selector = Json.obj(
             "date" -> Json.obj(
@@ -103,7 +102,7 @@ class MeterEntryController @Inject()(
     response = classOf[MeterEntry],
     responseContainer = "Map"
   )
-  def findMonthlyMeterEntriesByDate(date: String, meterId: String): Action[AnyContent] = {
+  def findMeterEntriesByDate(date: String, meterId: String, days: Option[Int]): Action[AnyContent] = {
     import JsonFormats._
     import org.joda.time.format.DateTimeFormat
     silhouette.SecuredAction.async { _ =>
@@ -111,8 +110,7 @@ class MeterEntryController @Inject()(
       val fromDate: LocalDate = fmt.parseLocalDate(date)
 
       val startDate = fromDate.minusDays(fromDate.getDayOfMonth - 1)
-      val maxDayOfMonth: Int = fromDate.dayOfMonth().withMaximumValue().getDayOfMonth
-      val endDate = fromDate.plusDays(maxDayOfMonth - fromDate.getDayOfMonth)
+      val endDate = fromDate.plusDays(days.getOrElse(31))
 
       val selector = Json.obj(
         "date" -> Json.obj(

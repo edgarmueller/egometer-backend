@@ -21,8 +21,8 @@ POST          /api/v1/meters                          controllers.models.MeterCo
 DELETE        /api/v1/meters/:id                      controllers.models.MeterController.deleteMeter(id: String)
 
 # Meter entries --
-GET           /api/v1/entries/:date                   controllers.models.MeterEntryController.findMonthlyEntriesByDate(date: String)
-GET           /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.findMonthlyMeterEntriesByDate(date: String, meterId: String)
+GET           /api/v1/entries/:date                   controllers.models.MeterEntryController.findEntriesByDate(date: String, days: Option[Int])
+GET           /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.findMeterEntriesByDate(date: String, meterId: String, days: Option[Int])
 
 + nocsrf
 POST          /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.upsertMeterEntry(meterId: String, date: String)
