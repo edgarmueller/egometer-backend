@@ -9,7 +9,6 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc._
@@ -121,6 +120,23 @@ class MeterEntryController @Inject()(
       )
 
       findEntries(selector).map(groupedEntries => Ok(Json.toJson(groupedEntries)))
+    }
+  }
+
+  @ApiOperation(
+    value = "Delete a meter entry",
+    response = classOf[Boolean]
+  )
+  def deleteEntry(entryId: String): Action[AnyContent] = {
+    silhouette.SecuredAction.async { _ =>
+      meterEntryRepo.deleteEntries(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
+        .map { writeResult => {
+          if (writeResult.ok) {
+            Ok(Json.toJson(writeResult.ok))
+          } else {
+            BadRequest(Json.toJson("entry.does.not.exist"))
+          }
+        }}
     }
   }
 
