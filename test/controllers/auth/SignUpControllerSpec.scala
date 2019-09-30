@@ -51,59 +51,80 @@ class SignUpControllerSpec
       }
     }
 
-//    "return HTTP status 400 if the `email` field is invalid" in new Context {
-//      new WithApplication(application) {
-//        val request = FakeRequest().withJsonBody(Json.obj(
-//          "email" -> "invalid",
-//          "password" -> password,
-//          "name" -> name
-//        )).withCSRFToken
-//
-//        Response(
-//          BAD_REQUEST,
-//          toResult(controller.signUp(request)),
-//          "auth.signUp.form.invalid",
-//          Messages("invalid.form"),
-//          Seq(FormError("email", Messages("error.email")))
-//        )
-//      }
-//    }
+    "return HTTP status 400 if the `email` field is invalid" in new Context {
+      new WithApplication(application) {
+        val request = FakeRequest().withJsonBody(Json.obj(
+          "email" -> "invalid",
+          "password" -> password,
+          "name" -> name
+        )).withCSRFToken
 
-//    "return HTTP status 400 if the `password` field is missing" in new Context {
-//      new WithApplication(application) {
-//        val request = FakeRequest().withJsonBody(Json.obj(
-//          "email" -> email,
-//          "password" -> "",
-//          "name" -> "John Doe"
-//        )).withCSRFToken
-//
-//        Response(
-//          BAD_REQUEST,
-//          controller.signUp(request),
-//          "auth.signUp.form.invalid",
-//          Messages("invalid.form"),
-//          Seq(FormError("password", Messages("error.required")))
-//        )
-//      }
-//    }
+        Response(
+          BAD_REQUEST,
+          controller.signUp(request),
+          "auth.signUp.invalid.data",
+          Messages("auth.signUp.invalid.data"),
+          Json.obj("obj.email" ->
+            Json.arr(
+              Json.obj(
+                "msg" -> Json.arr("error.email"),
+                "args" -> Json.arr()
+              )
+            )
+          )
+        )
+      }
+    }
 
-//    "return HTTP status 400 if the `name` field is missing" in new Context {
-//      new WithApplication(application) {
-//        val request = FakeRequest().withJsonBody(Json.obj(
-//          "email" -> email,
-//          "password" -> password,
-//          "name" -> ""
-//        )).withCSRFToken
-//
-//        Response(
-//          BAD_REQUEST,
-//          controller.signUp(request),
-//          "auth.signUp.form.invalid",
-//          Messages("invalid.form"),
-//          Seq(FormError("name", Messages("error.required")))
-//        )
-//      }
-//    }
+    "return HTTP status 400 if the `password` field is missing" in new Context {
+      new WithApplication(application) {
+        val request = FakeRequest().withJsonBody(Json.obj(
+          "email" -> email,
+          "password" -> "",
+          "name" -> "John Doe"
+        )).withCSRFToken
+
+        Response(
+          BAD_REQUEST,
+          controller.signUp(request),
+          "auth.signUp.invalid.data",
+          Messages("auth.signUp.invalid.data"),
+          Json.obj("obj.password" ->
+            Json.arr(
+              Json.obj(
+                "msg" -> Json.arr("error.minLength"),
+                "args" -> Json.arr(6)
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "return HTTP status 400 if the `name` field is missing" in new Context {
+      new WithApplication(application) {
+        val request = FakeRequest().withJsonBody(Json.obj(
+          "email" -> email,
+          "password" -> password,
+          "name" -> ""
+        )).withCSRFToken
+
+        Response(
+          BAD_REQUEST,
+          controller.signUp(request),
+          "auth.signUp.invalid.data",
+          Messages("auth.signUp.invalid.data"),
+          Json.obj("obj.name" ->
+            Json.arr(
+              Json.obj(
+                "msg" -> Json.arr("error.minLength"),
+                "args" -> Json.arr(3)
+              )
+            )
+          )
+        )
+      }
+    }
 
     "send an email to an already existing user" in new Context {
       new WithApplication(application) {
