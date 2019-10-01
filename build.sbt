@@ -27,14 +27,14 @@ libraryDependencies ++= Seq(
   "com.typesafe.play"      %% "play-mailer"                % "6.0.1",
   "com.typesafe.play"      %% "play-mailer-guice"          % "6.0.1",
   "com.digitaltangible"    %% "play-guard"                 % "2.2.0",
-  "org.scalatestplus.play" %% "scalatestplus-play"         % "3.1.1" % Test,
-  "com.typesafe.play"      %% "play-specs2"                % "2.6.17" % "test",
-  "org.specs2"             %% "specs2-core"                % "3.8.9"  % "test",
-  "org.specs2"             %% "specs2-matcher-extra"       % "3.8.9"  % "test",
-  "org.specs2"             %% "specs2-mock"                % "3.8.9"  % "test",
-  "de.flapdoodle.embed"    % "de.flapdoodle.embed.mongo"   % "2.0.0"  % "test",
-  "com.typesafe.akka"      %% "akka-testkit"               % "2.5.4"  % "test",
-  "javax.xml.bind"          % "jaxb-api"                   % "2.3.0"
+  "org.scalatestplus.play" %% "scalatestplus-play"         % "3.1.1"  % Test,
+  "com.typesafe.play"      %% "play-specs2"                % "2.6.17" % Test,
+  "org.specs2"             %% "specs2-core"                % "3.8.9"  % Test,
+  "org.specs2"             %% "specs2-matcher-extra"       % "3.8.9"  % Test,
+  "org.specs2"             %% "specs2-mock"                % "3.8.9"  % Test,
+  "de.flapdoodle.embed"    % "de.flapdoodle.embed.mongo"   % "2.2.0"  % Test,
+  "de.flapdoodle.embed"    % "de.flapdoodle.embed.process" % "2.1.2"  % Test,
+  "com.typesafe.akka"      %% "akka-testkit"               % "2.5.4"  % Test
 )
 
 libraryDependencies ++= Seq(
