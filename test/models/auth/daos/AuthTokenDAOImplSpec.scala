@@ -48,9 +48,8 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
     "update an existing token" in new Context {
       new WithApplication(application) with MongoScope {
         val updatedToken: AuthToken = token.copy(expiry = Instant.now())
-
         await(dao.save(updatedToken)) must be equalTo updatedToken
-        await(dao.findByUUID(token.id)) must beSome(updatedToken)
+        await(dao.findByUUID(token.id)).map(_.expiry.toEpochMilli) must beSome(updatedToken.expiry.toEpochMilli)
       }
     }
   }
