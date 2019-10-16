@@ -2,6 +2,6 @@
 {"_id":{"$oid":"5b352d1821d900141fc5ab03"},"name":"MinimumOf0","schema":{"type":"number","minimum":0}}
 {"_id":{"$oid":"5b35331121d900141fc5ab04"},"name":"String","schema":{"type":"string"}}
 {"_id":{"$oid":"5b96b68a6d010052ad659d43"},"name":"Activities", "schema":{"type":"array","items":{"type":"string","enum":["work","chill","friends","family","love","sports","food","party","movies","reading","gaming","shopping","traveling","nature","cleaning","pet_project","sick","learning","health"]}}}
-{"_id":{"$oid":"5b9bc11a6d010052ad659d44"},"name":"Mood", schema":{"type":"string","enum":["dabomb","good","okayish","down","bad"]}}
+{"_id":{"$oid":"5b9bc11a6d010052ad659d44"},"name":"Mood", "schema":{"type":"string","enum":["dabomb","good","okayish","down","bad"]}}
 {"_id":{"$oid":"5b9ff984580b001d99e4adaa"},"name":"Number","schema":{"type":"number"}}
 {"_id":{"$oid":"5bd46c5b5ba347154ba16aae"},"name":"QuantityEnum","schema":{"type":"string","enum":["none","a_bit","a_lot"]}}
