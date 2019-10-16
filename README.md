@@ -5,49 +5,55 @@ This is the backend part of egometer. See [egometer-frontend](https://github.com
 ## Getting started
 
 * Install MongoDB and start it, see [tutorial](https://docs.mongodb.com/v3.2/tutorial/install-mongodb-on-ubuntu/) for a how-to
+* Import example data from the `data` via `mongoimport` directory:
+```
+mongoimport --db egometer --collection schemas --file schemas.json
+```
 * Create a `application.local.conf` configuration file to include the following configuration:
 
 ```
-      swagger.api.uri = "http://localhost:9000"
+SWAGGER_API_URL = "http://localhost:9000"
 
-      mongodb.uri = "mongodb://localhost:27017:/egometer"
+API_URL = "http://localhost:9000"
 
-      ui.url = "http://localhost:3000"
+FRONTEND_URL = "http://localhost:3000"
 
-      play.filters {
-        cors {
-          allowedOrigins = null
-        }
-        hosts {
-          allowed = ["."]
-        }
-      }
+MAIL_USER = "<username>@gmail.com"
 
-      play.mailer {
-        host = "smtp.gmail.com"
-        port = 587
-        ssl  = false
-        tls  = true
-        user = "<username>@gmail.com"
-        password = "<password>"
-      }
+MAIL_PASSWORD = "<password>"
+
+MONGODB_URI = "mongodb://localhost:27017/egometer"
+
+play.filters {
+  cors {
+    allowedOrigins = null
+  }
+  hosts {
+    allowed = ["."]
+  }
+}
+
+play.mailer {
+  host = "smtp.gmail.com"
+  port = 587
+  ssl  = false
+  tls  = true
+  user = "<username>@gmail.com"
+  password = "<password>"
+}
+
+include "application.conf"      
 ```
 
 * Create a `silhouette.local.conf` file to configure google client settings of the app
 
 ```
-      silhouette {
-        google.clientID="<id>.apps.googleusercontent.com"
-        google.clientSecret="<secret>"
-        authenticator.sharedSecret="<changeme>"
-        authenticator.crypter.key="<changeme>"
-      }
-```
-
-* Import example data from the `data` via `mongoimport` directory:
-
-```
-      mongoimport --db egometer --collection schemas --file schemas.json
+silhouette {
+  google.clientID="<id>.apps.googleusercontent.com"
+  google.clientSecret="<secret>"
+  authenticator.sharedSecret="<changeme>"
+  authenticator.crypter.key="<changeme>"
+}
 ```
 
 * Run SBT and type ```~run```  to launch the server in dev mode
