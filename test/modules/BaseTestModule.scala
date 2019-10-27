@@ -23,5 +23,6 @@ class BaseTestModule extends AbstractModule with ScalaModule {
     // replace cache implementation to avoid EhCacheException, see
     // https://stackoverflow.com/questions/39453838/play-scala-2-5-testing-classes-injecting-cache-leads-to-an-error
     bind[AsyncCacheApi].toInstance(inMemoryCache)
+    bind[CacheLayer].toInstance(new PlayCacheLayer(inMemoryCache))
   }
 }
