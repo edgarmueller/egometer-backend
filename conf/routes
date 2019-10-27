@@ -46,9 +46,9 @@ POST         /api/v1/password/recovery/:token         controllers.auth.PasswordC
 # GET         /api/v1/account/email/:email            controllers.ActivateAccountController.send(email: String)
 
 # Swagger docs
-GET          /                                        controllers.models.ApiDocsController.redirectToDocs
+GET          /                                        controllers.ApiDocsController.redirectToDocs
 GET          /api/v1/swagger.json                     controllers.ApiHelpController.getResources
-GET          /api/v1/api-docs                         controllers.models.ApiDocsController.redirectToDocs
+GET          /api/v1/api-docs                         controllers.ApiDocsController.redirectToDocs
 
 # Map static resources from the /public folder to the /assets URL path
 GET          /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)
