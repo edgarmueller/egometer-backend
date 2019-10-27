@@ -49,7 +49,7 @@ class MeterEntriesController @Inject()(
     new ApiImplicitParam(
       value = "The meter entry to be added, in JSON format",
       required = true,
-      dataType = "models.meter.MeterEntryDto",
+      dataType = "models.entry.MeterEntryDto",
       paramType = "body"
     )
   ))
