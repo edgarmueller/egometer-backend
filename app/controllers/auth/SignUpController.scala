@@ -8,11 +8,11 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
-import controllers.models.common.ApiController
+import controllers.common.ApiController
 import javax.inject.Inject
-import models.auth.SignUpData
+import models.auth.{Registration, SignUpData}
 import models.auth.services.{AuthTokenService, UserService}
-import models.{JsonFormats, Registration, Settings, User}
+import models.{JsonFormats, Settings, User}
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.http.HeaderNames

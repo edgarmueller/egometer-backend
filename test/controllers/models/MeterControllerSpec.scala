@@ -1,7 +1,7 @@
 package controllers.models
 
 import com.mohiva.play.silhouette.test._
-import models.Meter
+import models.meter.Meter
 import play.api.libs.json._
 import play.api.test._
 import reactivemongo.bson.BSONObjectID

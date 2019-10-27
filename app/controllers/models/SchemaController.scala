@@ -3,14 +3,15 @@ package controllers.models
 import com.eclipsesource.schema.JsonSource
 import com.eclipsesource.schema.drafts.Version7
 import com.mohiva.play.silhouette.api.Silhouette
-import controllers.models.common.WithValidator
+import controllers.common.WithValidator
 import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
-import models.{MeterError, SchemaDao, SchemaRepo, Schema => MeterSchema}
+import models.MeterError
 import play.api.libs.json.{JsNull, JsValue, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import reactivemongo.bson.BSONObjectID
+import models.schema.{SchemaDao, SchemasRepository, Schema => MeterSchema}
 import utils.auth.Roles.AdminRole
 import utils.auth.{DefaultEnv, WithRole}
 
@@ -22,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Api(value = "/schemas")
 class SchemaController @Inject()(
                                   cc: ControllerComponents,
-                                  schemaRepo: SchemaRepo,
+                                  schemaRepo: SchemasRepository,
                                   silhouette: Silhouette[DefaultEnv]
                                 )(implicit ec: ExecutionContext)
   extends AbstractController(cc) with WithValidator {

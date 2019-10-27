@@ -1,7 +1,7 @@
 package controllers.auth
 
 import com.mohiva.play.silhouette.api.Silhouette
-import controllers.models.common.ApiController
+import controllers.common.ApiController
 import javax.inject.Inject
 import org.joda.time.Period
 import play.api.i18n.{I18nSupport, Messages}

@@ -4,11 +4,14 @@ import com.eclipsesource.schema._
 import com.eclipsesource.schema.drafts.Version7
 import com.github.nscala_time.time.Imports._
 import com.mohiva.play.silhouette.api.Silhouette
-import controllers.models.common.{ApiController, WithValidator}
+import controllers.common.{ApiController, WithValidator}
 import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
+import models.entry.{MeterEntry, MeterEntryDao, MeterEntryRepo}
+import models.meter.{Meter, MetersRepository}
+import models.schema.{Schema, SchemasRepository}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc._
@@ -23,8 +26,8 @@ import scala.util.Try
 @Api(value = "/entries")
 class MeterEntryController @Inject()(
                                       cc: ControllerComponents,
-                                      schemaRepo: SchemaRepo,
-                                      meterRepo: MeterRepo,
+                                      schemaRepo: SchemasRepository,
+                                      meterRepo: MetersRepository,
                                       meterEntryRepo: MeterEntryRepo,
                                       silhouette: Silhouette[DefaultEnv]
                                     )(implicit ec: ExecutionContext)
@@ -92,7 +95,11 @@ class MeterEntryController @Inject()(
             Ok(Json.toJson(groupedEntries))
           )
         })
-        .getOrElse(Future.successful(BadRequest(MeterResponse("invalid.date.format", Messages("invalid.date.format")))))
+        .getOrElse(
+          Future.successful(
+            BadRequest(MeterResponse("invalid.date.format", Messages("invalid.date.format")))
+          )
+        )
     }
   }
 

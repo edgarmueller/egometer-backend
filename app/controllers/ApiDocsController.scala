@@ -1,4 +1,4 @@
-package controllers.models
+package controllers
 
 import javax.inject._
 import play.api._

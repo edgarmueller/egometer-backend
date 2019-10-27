@@ -2,11 +2,13 @@ package controllers.models
 
 import com.eclipsesource.schema.JsonSource
 import com.mohiva.play.silhouette.api.Silhouette
-import controllers.models.common.WithValidator
+import controllers.common.WithValidator
 import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
+import models.entry.MeterEntryRepo
+import models.meter.{Meter, MeterDao, MetersRepository}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import utils.auth.DefaultEnv
@@ -17,7 +19,7 @@ import scala.concurrent.Future
 @Api(value = "/meters")
 class MeterController @Inject()(
                                  cc: ControllerComponents,
-                                 meterRepo: MeterRepo,
+                                 meterRepo: MetersRepository,
                                  meterEntryRepo: MeterEntryRepo,
                                  silhouette: Silhouette[DefaultEnv]
                                ) extends AbstractController(cc) with WithValidator {

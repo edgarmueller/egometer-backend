@@ -2,7 +2,7 @@ package controllers.models
 
 import com.mohiva.play.silhouette.test._
 import models.JsonFormats._
-import models.Schema
+import models.schema.Schema
 import play.api.libs.json.JsValue
 import play.api.test.{FakeRequest, WithApplication}
 import spec.{AuthSpec, MongoSpecification}

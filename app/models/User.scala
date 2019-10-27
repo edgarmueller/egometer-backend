@@ -3,6 +3,7 @@ package models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
+import models.auth.Registration
 import utils.auth.Roles.{Role, UserRole}
 
 case class User(

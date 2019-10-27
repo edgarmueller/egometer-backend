@@ -7,7 +7,8 @@ import com.mohiva.play.silhouette.api.actions._
 import com.mohiva.play.silhouette.api.{Environment, LoginInfo, Silhouette, SilhouetteProvider}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import com.mohiva.play.silhouette.test.FakeEnvironment
-import models.{Registration, Settings, User}
+import models.auth.Registration
+import models.{Settings, User}
 import net.codingwell.scalaguice.ScalaModule
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder

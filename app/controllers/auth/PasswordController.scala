@@ -6,7 +6,7 @@ import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.models.common.ApiController
+import controllers.common.ApiController
 import javax.inject.Inject
 import models.auth.{AuthToken, EmailAddress, Password}
 import models.auth.services.{AuthTokenService, UserService}

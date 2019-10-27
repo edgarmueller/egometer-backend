@@ -1,4 +1,4 @@
-package controllers.models.common
+package controllers.common
 
 import com.digitaltangible.playguard._
 import play.api.http.Writeable

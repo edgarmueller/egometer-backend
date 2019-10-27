@@ -1,40 +1,15 @@
-package models
+package models.entry
 
 import com.google.inject.Inject
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import models.JsonFormats
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.{Cursor, ReadPreference}
-import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
-
-case class MeterEntryDao(
-                          id: Option[String],
-                          meterId: String,
-                          value: JsValue,
-                          date: JsString
-                        )
-
-object MeterEntryDao {
-  def toDao(meterEntry: MeterEntry): MeterEntryDao = {
-    MeterEntryDao(
-      meterEntry._id.map(_.stringify),
-      meterEntry.meterId,
-      meterEntry.value,
-      meterEntry.date
-    )
-  }
-}
-
-case class MeterEntry(
-                       _id: Option[BSONObjectID],
-                       meterId: String,
-                       value: JsValue,
-                       date: JsString
-                     )
 
 class MeterEntryRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 

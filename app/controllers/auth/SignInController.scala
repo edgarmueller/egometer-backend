@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
-import controllers.models.common.ApiController
+import controllers.common.ApiController
 import javax.inject.Inject
 import models.auth.SignInToken
 import models.auth.services.{SignInInfo, UserService}

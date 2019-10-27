@@ -6,7 +6,8 @@ import java.util.UUID
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import javax.inject.Inject
-import models.{Registration, Settings, User}
+import models.auth.Registration
+import models.{Settings, User}
 import models.auth.daos.UserDAO
 import play.api.http.HeaderNames
 import play.api.i18n

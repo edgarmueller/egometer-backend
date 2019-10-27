@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.models.common.ApiController
+import controllers.common.ApiController
 import javax.inject.Inject
 import models.auth.EmailAddress
 import models.auth.services.{AuthTokenService, UserService}

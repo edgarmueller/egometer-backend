@@ -1,4 +1,4 @@
-package controllers.models.common
+package controllers.common
 
 import com.eclipsesource.schema.drafts.Version7
 import com.eclipsesource.schema.internal.validators.DefaultFormats

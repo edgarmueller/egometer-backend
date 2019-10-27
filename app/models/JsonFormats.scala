@@ -7,6 +7,9 @@ import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.impl.providers.OAuth2Info
 import models.auth._
 import models.auth.services.SignInInfo
+import models.entry.{MeterEntry, MeterEntryDao}
+import models.meter.{Meter, MeterDao}
+import models.schema.{Schema, SchemaDao}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.i18n.Lang
@@ -34,9 +37,8 @@ object JsonFormats{
   implicit val jodaDateWrites: Writes[DateTime] = (d: DateTime) => JsString(d.toString())
   implicit val meterFormat: OFormat[Meter] = Json.format[Meter]
   implicit val meterEntryFormat: OFormat[MeterEntry] = Json.format[MeterEntry]
-  implicit val meterEntryUpdateFormat: OFormat[MeterEntryUpdate] = Json.format[MeterEntryUpdate]
   implicit val meterSchemaFormat: OFormat[Schema] = Json.format[Schema]
-  implicit val meterErrorWrites: OWrites[MeterError] = (error: MeterError) => Json.obj(
+  implicit val meterErrorWrites: OWrites[ErrorResponse] = (error: ErrorResponse) => Json.obj(
     "msgs" -> error.msgs,
     "errors" -> JsError.toJson(error.jsError)
   )

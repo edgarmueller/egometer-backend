@@ -1,59 +1,24 @@
-package models
-
-import java.util.UUID
+package models.meter
 
 import javax.inject.Inject
+import models.JsonFormats
 import play.api.libs.json.JsObject
 import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.{Cursor, ReadPreference}
 import reactivemongo.api.commands.WriteResult
+import reactivemongo.api.{Cursor, ReadPreference}
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class MeterDao(
-                  id: Option[String],
-                  schemaId: String,
-                  name: String,
-                  widget: String,
-                  color: String,
-                  userId: Option[UUID],
-                  icon: Option[String],
-                  dailyGoal: Option[Int],
-                  weeklyGoal: Option[Int]
-                )
 
-object MeterDao {
-  def toDao(meter: Meter): MeterDao = {
-    MeterDao(
-      meter._id.map(_.stringify),
-      meter.schemaId,
-      meter.name,
-      meter.widget,
-      meter.color,
-      meter.userId,
-      meter.icon,
-      meter.dailyGoal,
-      meter.weeklyGoal
-    )
-  }
-}
 
-case class Meter(
-                  _id: Option[BSONObjectID],
-                  schemaId: String,
-                  name: String,
-                  widget: String,
-                  color: String,
-                  userId: Option[UUID],
-                  icon: Option[String],
-                  dailyGoal: Option[Int],
-                  weeklyGoal: Option[Int]
-                )
 
-class MeterRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
+
+
+
+class MetersRepository @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 
   import JsonFormats.meterFormat
 

@@ -1,8 +1,7 @@
-package models
-
-import java.util.UUID
+package models.schema
 
 import com.google.inject.Inject
+import models.JsonFormats
 import play.api.libs.json.JsObject
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
@@ -13,22 +12,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SchemaDao(id: Option[String], name: String, userId: Option[UUID], schema: JsObject)
-
-object SchemaDao {
-  def toDao(schema: Schema): SchemaDao = {
-    SchemaDao(
-      schema._id.map(_.stringify),
-      schema.name,
-      schema.userId,
-      schema.schema
-    )
-  }
-}
-
-case class Schema(_id: Option[BSONObjectID], name: String, userId: Option[UUID], schema: JsObject)
-
-class SchemaRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
+class SchemasRepository @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 
   import JsonFormats.meterSchemaFormat
 
