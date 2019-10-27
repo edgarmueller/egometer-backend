@@ -37,7 +37,7 @@ class MeterEntriesController @Inject()(
 
   @ApiOperation(
     value = "Create a meter entry",
-    response = classOf[MeterEntry],
+    response = classOf[MeterEntryDto],
     code = 201
   )
   @ApiResponses(Array(
@@ -49,7 +49,7 @@ class MeterEntriesController @Inject()(
     new ApiImplicitParam(
       value = "The meter entry to be added, in JSON format",
       required = true,
-      dataType = "models.MeterEntry",
+      dataType = "models.meter.MeterEntryDto",
       paramType = "body"
     )
   ))
@@ -71,7 +71,7 @@ class MeterEntriesController @Inject()(
 
   @ApiOperation(
     value = "Get all available meter entries per meter for a month based on the given date",
-    response = classOf[MeterEntry],
+    response = classOf[MeterEntryDto],
     responseContainer = "Map"
   )
   def findEntriesByDate(date: String, days: Option[Int]): Action[AnyContent] = {
@@ -105,7 +105,7 @@ class MeterEntriesController @Inject()(
 
   @ApiOperation(
     value = "Get all available meter entries per meter for a month based on the given date",
-    response = classOf[MeterEntry],
+    response = classOf[MeterEntryDto],
     responseContainer = "Map"
   )
   def findMeterEntriesByDate(date: String, meterId: String, days: Option[Int]): Action[AnyContent] = {

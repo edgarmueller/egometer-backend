@@ -12,8 +12,7 @@ import play.api.libs.json.{JsNull, JsValue, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import reactivemongo.bson.BSONObjectID
 import models.schema.{SchemaDto, SchemasDao, Schema => MeterSchema}
-import utils.auth.Roles.AdminRole
-import utils.auth.{DefaultEnv, WithRole}
+import utils.auth.{DefaultEnv}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,7 +53,7 @@ class SchemasController @Inject()(
 
   @ApiOperation(
     value = "Get all available meter schemas",
-    response = classOf[MeterSchema],
+    response = classOf[SchemaDto],
     responseContainer = "List"
   )
   def getAllMeterSchemas: Action[AnyContent] = silhouette.SecuredAction.async { req =>
@@ -73,7 +72,7 @@ class SchemasController @Inject()(
 
   @ApiOperation(
     value = "Get a meter schema by its id",
-    response = classOf[MeterSchema]
+    response = classOf[SchemaDto]
   )
   @ApiResponses(Array(
       new ApiResponse(code = 404, message = "schema.not.found", response = classOf[ErrorResponse])
@@ -119,7 +118,7 @@ class SchemasController @Inject()(
       new ApiImplicitParam(
         value = "The schema to be added, in JSON format",
         required = true,
-        dataType = "models.Schema",
+        dataType = "models.schema.SchemaDto",
         paramType = "body"
       )
     )
@@ -150,7 +149,7 @@ class SchemasController @Inject()(
 
   @ApiOperation(
     value = "Delete a schema",
-    response = classOf[MeterSchema]
+    response = classOf[SchemaDto]
   )
   def deleteMeterSchema(
                          @ApiParam(value = "The id of the schema to delete") meterSchemaId: String

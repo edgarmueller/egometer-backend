@@ -46,7 +46,7 @@ class MetersController @Inject()(
 
   @ApiOperation(
     value = "Get all available meters",
-    response = classOf[Meter],
+    response = classOf[MeterDto],
     responseContainer = "List"
   )
   def getAllMeters: Action[AnyContent] = silhouette.SecuredAction.async { req =>
@@ -58,7 +58,7 @@ class MetersController @Inject()(
 
   @ApiOperation(
     value = "Get a Meter",
-    response = classOf[Meter]
+    response = classOf[MeterDto]
   )
   @ApiResponses(Array(
       new ApiResponse(code = 404, message = "meter.not.found")
@@ -95,7 +95,7 @@ class MetersController @Inject()(
       new ApiImplicitParam(
         value = "The Meter to add, in Json Format",
         required = true,
-        dataType = "models.Meter",
+        dataType = "models.meter.MeterDto",
         paramType = "body"
       )
     )
@@ -117,11 +117,15 @@ class MetersController @Inject()(
 
   @ApiOperation(
     value = "Delete a Meter",
-    response = classOf[Meter]
+    response = classOf[MeterDto]
   )
   @ApiResponses(
     Array(
-      new ApiResponse(code = 404, message = "meter.not.found", response = classOf[ErrorResponse])
+      new ApiResponse(
+        code = 404,
+        message = "meter.not.found",
+        response = classOf[ErrorResponse]
+      )
     )
   )
   def deleteMeter(@ApiParam(value = "The id of the Meter to delete") meterId: String): Action[AnyContent] =
@@ -145,14 +149,19 @@ class MetersController @Inject()(
 
   @ApiOperation(
     value = "Update a Meter",
-    response = classOf[Meter]
+    response = classOf[MeterDto]
   )
   @ApiResponses(
     Array(new ApiResponse(code = 400, message = "Invalid Meter format"))
   )
   @ApiImplicitParams(
     Array(
-      new ApiImplicitParam(value = "The updated Meter, in Json Format", required = true, dataType = "models.Meter", paramType = "body")
+      new ApiImplicitParam(
+        value = "The updated Meter, in Json Format",
+        required = true,
+        dataType = "models.meter.MeterDto",
+        paramType = "body"
+      )
     )
   )
   def updateMeter(@ApiParam(value = "The id of the Meter to update") meterId: String): Action[JsValue] =
