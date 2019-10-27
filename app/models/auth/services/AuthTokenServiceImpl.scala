@@ -5,7 +5,7 @@ import java.util.UUID
 
 import javax.inject.Inject
 import models.auth.AuthToken
-import models.auth.daos.AuthTokenDAO
+import models.auth.daos.AuthTokenDao
 import utils.Logger
 
 import scala.concurrent.duration._
@@ -20,8 +20,8 @@ import scala.language.postfixOps
  * @param ex           The execution context.
  */
 class AuthTokenServiceImpl @Inject() (
-  authTokenDAO: AuthTokenDAO,
-  clock: Clock
+                                       authTokenDAO: AuthTokenDao,
+                                       clock: Clock
 )(
   implicit
   ex: ExecutionContext

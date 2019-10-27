@@ -9,9 +9,9 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import models.entry.{MeterEntry, MeterEntryDao, MeterEntryRepo}
-import models.meter.{Meter, MetersRepository}
-import models.schema.{Schema, SchemasRepository}
+import models.entry.{MeterEntry, MeterEntryDto, MeterEntriesDao}
+import models.meter.{Meter, MetersDao}
+import models.schema.{Schema, SchemasDao}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc._
@@ -24,14 +24,14 @@ import scala.util.Try
   * Controller for managing entries of a meter.
   */
 @Api(value = "/entries")
-class MeterEntryController @Inject()(
-                                      cc: ControllerComponents,
-                                      schemaRepo: SchemasRepository,
-                                      meterRepo: MetersRepository,
-                                      meterEntryRepo: MeterEntryRepo,
-                                      silhouette: Silhouette[DefaultEnv]
+class MeterEntriesController @Inject()(
+                                        controllerComponents: ControllerComponents,
+                                        schemaDao: SchemasDao,
+                                        metersDao: MetersDao,
+                                        meterEntriesDao: MeterEntriesDao,
+                                        silhouette: Silhouette[DefaultEnv]
                                     )(implicit ec: ExecutionContext)
-  extends AbstractController(cc) with ApiController with WithValidator {
+  extends AbstractController(controllerComponents) with ApiController with WithValidator {
 
   import Version7._
 
@@ -56,16 +56,16 @@ class MeterEntryController @Inject()(
   def upsertMeterEntry(meterId: String, date: String): Action[JsValue] = silhouette.SecuredAction.async(parse.json) { req =>
     meterEntryUpdateFormat.reads(req.body)
       .map(updateEntry =>
-        meterRepo
+        metersDao
           .findById(meterId)
           .flatMap(
             _.fold(
-              Future(NotFound(MeterError("meter.not.found").toJson))
+              Future(NotFound(ErrorResponse("meter.not.found").toJson))
             )(upsertEntry(MeterEntry(None, meterId, updateEntry.value, JsString(date))))
           )
       )
       .getOrElse(
-        Future.successful(BadRequest(MeterError("invalid.meter.entry.format").toJson))
+        Future.successful(BadRequest(ErrorResponse("invalid.meter.entry.format").toJson))
       )
   }
 
@@ -136,7 +136,7 @@ class MeterEntryController @Inject()(
   )
   def deleteEntry(entryId: String): Action[AnyContent] = {
     silhouette.SecuredAction.async { _ =>
-      meterEntryRepo.deleteEntries(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
+      meterEntriesDao.deleteEntries(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
         .map { writeResult => {
           if (writeResult.ok) {
             Ok(Json.toJson(writeResult.ok))
@@ -147,25 +147,25 @@ class MeterEntryController @Inject()(
     }
   }
 
-  private def findEntries(selector: JsObject): Future[Map[String, Seq[MeterEntryDao]]] = {
-    meterEntryRepo
+  private def findEntries(selector: JsObject): Future[Map[String, Seq[MeterEntryDto]]] = {
+    meterEntriesDao
       .query(selector)
       .map {
         entries => {
           val grouped: Map[String, Seq[MeterEntry]] = entries.seq.groupBy(_.meterId)
-          grouped.mapValues(entries => entries.map(MeterEntryDao.toDao))
+          grouped.mapValues(entries => entries.map(MeterEntryDto.toDto))
         }
       }
   }
 
   private def upsertEntry(entry: MeterEntry)(meter: Meter): Future[Result] = {
-    schemaRepo
+    schemaDao
       .findById(meter.schemaId)
       .flatMap(maybeSchema =>
         maybeSchema
           .flatMap(parseSchema)
           .map(upsertValidEntry(entry))
-          .getOrElse(Future(InternalServerError(MeterError(s"schema.not.found").toJson)))
+          .getOrElse(Future(InternalServerError(ErrorResponse(s"schema.not.found").toJson)))
       )
   }
 
@@ -176,12 +176,12 @@ class MeterEntryController @Inject()(
   private def upsertValidEntry(entry: MeterEntry)(schema: SchemaType): Future[Result] = {
     validator.validate(schema)(entry.value)
       .fold(
-        errors => Future(BadRequest(MeterError(errors).toJson)),
-        _ => meterEntryRepo.upsertEntry(entry)
+        errors => Future(BadRequest(ErrorResponse(errors).toJson)),
+        _ => meterEntriesDao.upsertEntry(entry)
           .map { upsertedEntry =>
             upsertedEntry
               .map(e =>
-                Ok(Json.toJson(MeterEntryDao.toDao(e))))
+                Ok(Json.toJson(MeterEntryDto.toDto(e))))
               .getOrElse(NotFound)
           }
       )

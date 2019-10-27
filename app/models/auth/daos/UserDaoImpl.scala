@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Give access to the user object.
   */
-class UserDAOImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi) extends UserDAO {
+class UserDaoImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi) extends UserDao {
 
   import models.JsonFormats.userFormat
 

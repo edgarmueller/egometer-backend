@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 
-class MetersRepository @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
+class MetersDao @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 
   import JsonFormats.meterFormat
 

@@ -11,7 +11,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MeterEntryRepo @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
+class MeterEntriesDao @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 
   def meterEntryCollection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection("entries"))
 

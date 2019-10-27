@@ -7,8 +7,8 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import models.entry.MeterEntryRepo
-import models.meter.{Meter, MeterDao, MetersRepository}
+import models.entry.MeterEntriesDao
+import models.meter.{Meter, MeterDto, MetersDao}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import utils.auth.DefaultEnv
@@ -17,12 +17,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Api(value = "/meters")
-class MeterController @Inject()(
-                                 cc: ControllerComponents,
-                                 meterRepo: MetersRepository,
-                                 meterEntryRepo: MeterEntryRepo,
-                                 silhouette: Silhouette[DefaultEnv]
-                               ) extends AbstractController(cc) with WithValidator {
+class MetersController @Inject()(
+                                  controllerComponents: ControllerComponents,
+                                  metersDao: MetersDao,
+                                  meterEntriesDao: MeterEntriesDao,
+                                  silhouette: Silhouette[DefaultEnv]
+                               ) extends AbstractController(controllerComponents) with WithValidator {
 
   import com.eclipsesource.schema.drafts.Version7._
 
@@ -51,9 +51,9 @@ class MeterController @Inject()(
   )
   def getAllMeters: Action[AnyContent] = silhouette.SecuredAction.async { req =>
     val user = req.identity
-    meterRepo
+    metersDao
       .query(Json.obj("userId" -> user.id))
-      .map { meters => Ok(Json.toJson(meters.map(MeterDao.toDao))) }
+      .map { meters => Ok(Json.toJson(meters.map(MeterDto.toDto))) }
   }
 
   @ApiOperation(
@@ -67,7 +67,7 @@ class MeterController @Inject()(
   def getMeter(@ApiParam(value = "The id of the Meter to fetch") meterId: String): Action[AnyContent] =
     silhouette.SecuredAction.async { req =>
       val user = req.identity
-      meterRepo
+      metersDao
         .queryFirst(
           Json.obj(
             "userId" -> user.id,
@@ -77,8 +77,8 @@ class MeterController @Inject()(
         .map { maybeMeter =>
           maybeMeter
             .filter(meter => meter.userId.contains(user.id))
-            .map(meter => Ok(Json.toJson(MeterDao.toDao(meter))))
-            .getOrElse(NotFound(Json.toJson(MeterError("meter.not.found"))))
+            .map(meter => Ok(Json.toJson(MeterDto.toDto(meter))))
+            .getOrElse(NotFound(Json.toJson(ErrorResponse("meter.not.found"))))
         }
     }
 
@@ -107,11 +107,11 @@ class MeterController @Inject()(
         .flatMap(meterFormat.reads)
         .map { meter =>
           val meterWithId = meter.copy(userId = Some(user.id))
-          meterRepo
+          metersDao
             .addMeter(meterWithId)
-            .map { _ => Created(Json.toJson(MeterDao.toDao(meterWithId))) }
+            .map { _ => Created(Json.toJson(MeterDto.toDto(meterWithId))) }
         }
-        .fold(errors => Future.successful(BadRequest(Json.toJson(MeterError("invalid.meter", errors)))), identity)
+        .fold(errors => Future.successful(BadRequest(Json.toJson(ErrorResponse("invalid.meter", errors)))), identity)
     }
   }
 
@@ -121,24 +121,24 @@ class MeterController @Inject()(
   )
   @ApiResponses(
     Array(
-      new ApiResponse(code = 404, message = "meter.not.found", response = classOf[MeterError])
+      new ApiResponse(code = 404, message = "meter.not.found", response = classOf[ErrorResponse])
     )
   )
   def deleteMeter(@ApiParam(value = "The id of the Meter to delete") meterId: String): Action[AnyContent] =
     silhouette.SecuredAction.async { req =>
       val user = req.identity
       // delete all related entries first
-      meterEntryRepo
+      meterEntriesDao
         .deleteEntries(Json.obj("meterId" -> meterId))
         .flatMap { _ =>
-          meterRepo
+          metersDao
             .deleteMeter(Json.obj(
               "userId" -> user.id,
               "_id" -> Json.obj("$oid" -> meterId)
             ))
             .map {
-              case Some(meter) => Ok(Json.toJson(MeterDao.toDao(meter)))
-              case None => NotFound(Json.toJson(MeterError("meter.not.found")))
+              case Some(meter) => Ok(Json.toJson(MeterDto.toDto(meter)))
+              case None => NotFound(Json.toJson(ErrorResponse("meter.not.found")))
             }
         }
     }
@@ -166,13 +166,13 @@ class MeterController @Inject()(
         validate(req.body)
           .flatMap(meterFormat.reads)
           .map { meter =>
-            meterRepo.updateMeter(selector, meter).map {
-              _.map(m => Created(Json.toJson(MeterDao.toDao(m))))
+            metersDao.updateMeter(selector, meter).map {
+              _.map(m => Created(Json.toJson(MeterDto.toDto(m))))
                 .getOrElse(NotFound)
             }
           }
           .fold(errors => Future.successful(
-            BadRequest(Json.toJson(MeterError("invalid.meter", errors)))), identity
+            BadRequest(Json.toJson(ErrorResponse("invalid.meter", errors)))), identity
           )
     }
 }

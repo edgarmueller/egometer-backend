@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import javax.inject.Inject
 import models.auth.Registration
 import models.{Settings, User}
-import models.auth.daos.UserDAO
+import models.auth.daos.UserDao
 import play.api.http.HeaderNames
 import play.api.i18n
 import play.api.mvc.RequestHeader
@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param userDAO The user DAO implementation.
  * @param ex      The execution context.
  */
-class UserServiceImpl @Inject() (userDAO: UserDAO, clock: Clock)(implicit ex: ExecutionContext) extends UserService {
+class UserServiceImpl @Inject()(userDAO: UserDao, clock: Clock)(implicit ex: ExecutionContext) extends UserService {
 
   /**
    * Monkey patch the `CommonSocialProfile` class.

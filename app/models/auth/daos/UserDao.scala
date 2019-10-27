@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /**
  * Give access to the user object.
  */
-trait UserDAO {
+trait UserDao {
 
   /**
    * Finds a user by its login info.

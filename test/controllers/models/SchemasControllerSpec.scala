@@ -7,7 +7,7 @@ import play.api.libs.json.JsValue
 import play.api.test.{FakeRequest, WithApplication}
 import spec.{AuthSpec, MongoSpecification}
 
-class SchemaControllerSpec extends AuthSpec with MongoSpecification {
+class SchemasControllerSpec extends AuthSpec with MongoSpecification {
 
   "Get all schemas" in new AuthContext with MongoContext {
 

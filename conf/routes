@@ -3,30 +3,30 @@
 # ~~~~
 
 # Schemas --
-GET           /api/v1/schemas                         controllers.models.SchemaController.getAllMeterSchemas
-GET           /api/v1/schemas/:id                     controllers.models.SchemaController.getMeterSchema(id: String)
+GET           /api/v1/schemas                         controllers.models.SchemasController.getAllMeterSchemas
+GET           /api/v1/schemas/:id                     controllers.models.SchemasController.getMeterSchema(id: String)
 + nocsrf
-POST          /api/v1/schemas                         controllers.models.SchemaController.addMeterSchema
+POST          /api/v1/schemas                         controllers.models.SchemasController.addMeterSchema
 + nocsrf
-DELETE        /api/v1/schemas/:id                     controllers.models.SchemaController.deleteMeterSchema(id: String)
+DELETE        /api/v1/schemas/:id                     controllers.models.SchemasController.deleteMeterSchema(id: String)
 
 # Meter --
-GET           /api/v1/meters                          controllers.models.MeterController.getAllMeters
-GET           /api/v1/meters/:id                      controllers.models.MeterController.getMeter(id: String)
+GET           /api/v1/meters                          controllers.models.MetersController.getAllMeters
+GET           /api/v1/meters/:id                      controllers.models.MetersController.getMeter(id: String)
 # + nocsrf
-POST          /api/v1/meters/:id                      controllers.models.MeterController.updateMeter(id: String)
+POST          /api/v1/meters/:id                      controllers.models.MetersController.updateMeter(id: String)
 + nocsrf
-POST          /api/v1/meters                          controllers.models.MeterController.createMeter
+POST          /api/v1/meters                          controllers.models.MetersController.createMeter
 + nocsrf
-DELETE        /api/v1/meters/:id                      controllers.models.MeterController.deleteMeter(id: String)
+DELETE        /api/v1/meters/:id                      controllers.models.MetersController.deleteMeter(id: String)
 
 # Meter entries --
-GET           /api/v1/entries/:date                   controllers.models.MeterEntryController.findEntriesByDate(date: String, days: Option[Int])
-GET           /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.findMeterEntriesByDate(date: String, meterId: String, days: Option[Int])
-DELETE        /api/v1/entries/:entryId                controllers.models.MeterEntryController.deleteEntry(entryId: String)
+GET           /api/v1/entries/:date                   controllers.models.MeterEntriesController.findEntriesByDate(date: String, days: Option[Int])
+GET           /api/v1/entries/:date/:meterId          controllers.models.MeterEntriesController.findMeterEntriesByDate(date: String, meterId: String, days: Option[Int])
+DELETE        /api/v1/entries/:entryId                controllers.models.MeterEntriesController.deleteEntry(entryId: String)
 
 + nocsrf
-POST          /api/v1/entries/:date/:meterId          controllers.models.MeterEntryController.upsertMeterEntry(meterId: String, date: String)
+POST          /api/v1/entries/:date/:meterId          controllers.models.MeterEntriesController.upsertMeterEntry(meterId: String, date: String)
 
 GET           /api/v1/is-signed-in                    controllers.auth.IsSignedInController.isSignedIn
 

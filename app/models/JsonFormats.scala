@@ -5,11 +5,10 @@ import java.util.UUID
 
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.impl.providers.OAuth2Info
-import models.auth._
-import models.auth.services.SignInInfo
-import models.entry.{MeterEntry, MeterEntryDao}
-import models.meter.{Meter, MeterDao}
-import models.schema.{Schema, SchemaDao}
+import models.auth.{SignInInfo, _}
+import models.entry.{MeterEntry, MeterEntryDto}
+import models.meter.{Meter, MeterDto, MeterEntryUpdate}
+import models.schema.{Schema, SchemaDto}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.i18n.Lang
@@ -37,6 +36,7 @@ object JsonFormats{
   implicit val jodaDateWrites: Writes[DateTime] = (d: DateTime) => JsString(d.toString())
   implicit val meterFormat: OFormat[Meter] = Json.format[Meter]
   implicit val meterEntryFormat: OFormat[MeterEntry] = Json.format[MeterEntry]
+  implicit val meterEntryUpdateFormat: OFormat[MeterEntryUpdate] = Json.format[MeterEntryUpdate]
   implicit val meterSchemaFormat: OFormat[Schema] = Json.format[Schema]
   implicit val meterErrorWrites: OWrites[ErrorResponse] = (error: ErrorResponse) => Json.obj(
     "msgs" -> error.msgs,
@@ -71,9 +71,9 @@ object JsonFormats{
     override def reads(json: JsValue): JsResult[SignInInfo] = signInInfoReads.reads(json)
   }
 
-  implicit val meterEntryDaoFormat: OFormat[MeterEntryDao] = Json.format[MeterEntryDao]
-  implicit val meterDaoFormat: OFormat[MeterDao] = Json.format[MeterDao]
-  implicit val schemaDaoFormat: OFormat[SchemaDao] = Json.format[SchemaDao]
+  implicit val meterEntryDaoFormat: OFormat[MeterEntryDto] = Json.format[MeterEntryDto]
+  implicit val meterDaoFormat: OFormat[MeterDto] = Json.format[MeterDto]
+  implicit val schemaDaoFormat: OFormat[SchemaDto] = Json.format[SchemaDto]
 
   val signUpFormat: OFormat[SignUpData] = new OFormat[SignUpData] {
     val signUpDataWrites: OWrites[SignUpData] = Json.writes[SignUpData]

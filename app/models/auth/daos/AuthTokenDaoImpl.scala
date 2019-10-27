@@ -22,10 +22,10 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   * @param reactiveMongoApi The ReactiveMongo API.
   * @param ec               The execution context.
   */
-class AuthTokenDAOImpl @Inject() (reactiveMongoApi: ReactiveMongoApi)(
+class AuthTokenDaoImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)(
   implicit
   val ec: ExecutionContext
-) extends AuthTokenDAO with MongoModel {
+) extends AuthTokenDao with MongoModel {
 
   import models.JsonFormats.MongoFormats.{authTokenReads, authTokenWrites}
 

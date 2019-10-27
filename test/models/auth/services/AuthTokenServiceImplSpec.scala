@@ -4,7 +4,7 @@ import java.time.{Clock, Instant, ZoneId}
 import java.util.UUID
 
 import models.auth.AuthToken
-import models.auth.daos.AuthTokenDAO
+import models.auth.daos.AuthTokenDao
 import models.auth.services.AuthTokenServiceImpl
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.mock.Mockito
@@ -78,7 +78,7 @@ class AuthTokenServiceImplSpec extends PlaySpecification with Mockito with NoLan
     /**
      * The auth token DAO.
      */
-    val dao = mock[AuthTokenDAO].smart
+    val dao = mock[AuthTokenDao].smart
 
     /**
      * The auth token service implementation.

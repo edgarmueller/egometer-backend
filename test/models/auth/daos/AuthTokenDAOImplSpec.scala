@@ -78,7 +78,7 @@ class AuthTokenDAOImplSpec extends MongoSpecification {
     /**
      * The auth token DAO implementation.
      */
-    val dao = new AuthTokenDAOImpl(injector.instanceOf[ReactiveMongoApi])
+    val dao = new AuthTokenDaoImpl(injector.instanceOf[ReactiveMongoApi])
 
     /**
      * An ID for the stored token.

@@ -10,8 +10,8 @@ import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import controllers.common.ApiController
 import javax.inject.Inject
-import models.auth.SignInToken
-import models.auth.services.{SignInInfo, UserService}
+import models.auth.{SignInInfo, SignInToken}
+import models.auth.services.UserService
 import models.User
 import net.ceedubs.ficus.Ficus._
 import org.joda.time.DateTime

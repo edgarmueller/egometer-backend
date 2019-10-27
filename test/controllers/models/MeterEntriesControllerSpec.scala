@@ -5,7 +5,7 @@ import play.api.libs.json._
 import play.api.test._
 import spec.{ApiSpecification, AuthSpec, MongoSpecification}
 
-class MeterEntryControllerSpec
+class MeterEntriesControllerSpec
   extends AuthSpec
   with ApiSpecification
   with MongoSpecification {

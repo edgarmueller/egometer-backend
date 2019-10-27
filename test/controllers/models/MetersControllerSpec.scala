@@ -8,7 +8,7 @@ import reactivemongo.bson.BSONObjectID
 import spec.{ApiSpecification, AuthSpec, MongoSpecification}
 import utils.auth.DefaultEnv
 
-class MeterControllerSpec
+class MetersControllerSpec
   extends AuthSpec
     with ApiSpecification
     with MongoSpecification {

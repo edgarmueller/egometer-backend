@@ -12,7 +12,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SchemasRepository @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
+class SchemasDao @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi){
 
   import JsonFormats.meterSchemaFormat
 

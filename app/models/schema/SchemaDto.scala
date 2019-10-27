@@ -4,11 +4,11 @@ import java.util.UUID
 
 import play.api.libs.json.JsObject
 
-case class SchemaDao(id: Option[String], name: String, userId: Option[UUID], schema: JsObject)
+case class SchemaDto(id: Option[String], name: String, userId: Option[UUID], schema: JsObject)
 
-object SchemaDao {
-  def toDao(schema: Schema): SchemaDao = {
-    SchemaDao(
+object SchemaDto {
+  def toDto(schema: Schema): SchemaDto = {
+    SchemaDto(
       schema._id.map(_.stringify),
       schema.name,
       schema.userId,

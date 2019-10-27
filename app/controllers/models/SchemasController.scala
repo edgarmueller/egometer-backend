@@ -7,11 +7,11 @@ import controllers.common.WithValidator
 import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
-import models.MeterError
+import models.ErrorResponse
 import play.api.libs.json.{JsNull, JsValue, Json}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import reactivemongo.bson.BSONObjectID
-import models.schema.{SchemaDao, SchemasRepository, Schema => MeterSchema}
+import models.schema.{SchemaDto, SchemasDao, Schema => MeterSchema}
 import utils.auth.Roles.AdminRole
 import utils.auth.{DefaultEnv, WithRole}
 
@@ -21,12 +21,12 @@ import scala.concurrent.{ExecutionContext, Future}
   * Controller for managing schemas.
   */
 @Api(value = "/schemas")
-class SchemaController @Inject()(
-                                  cc: ControllerComponents,
-                                  schemaRepo: SchemasRepository,
-                                  silhouette: Silhouette[DefaultEnv]
+class SchemasController @Inject()(
+                                   controllerComponents: ControllerComponents,
+                                   schemasDao: SchemasDao,
+                                   silhouette: Silhouette[DefaultEnv]
                                 )(implicit ec: ExecutionContext)
-  extends AbstractController(cc) with WithValidator {
+  extends AbstractController(controllerComponents) with WithValidator {
 
   import Version7._
 
@@ -59,7 +59,7 @@ class SchemaController @Inject()(
   )
   def getAllMeterSchemas: Action[AnyContent] = silhouette.SecuredAction.async { req =>
     val user = req.identity
-    schemaRepo
+    schemasDao
       .query(
         Json.obj(
           "$or" -> Json.arr(
@@ -68,7 +68,7 @@ class SchemaController @Inject()(
           )
         )
       )
-      .map { meterSchemas => Ok(Json.toJson(meterSchemas.map(SchemaDao.toDao))) }
+      .map { meterSchemas => Ok(Json.toJson(meterSchemas.map(SchemaDto.toDto))) }
   }
 
   @ApiOperation(
@@ -76,14 +76,14 @@ class SchemaController @Inject()(
     response = classOf[MeterSchema]
   )
   @ApiResponses(Array(
-      new ApiResponse(code = 404, message = "schema.not.found", response = classOf[MeterError])
+      new ApiResponse(code = 404, message = "schema.not.found", response = classOf[ErrorResponse])
     )
   )
   def getMeterSchema(
                       @ApiParam(value = "The id of the meter schema to fetch") meterSchemaId: String
                     ): Action[AnyContent] = silhouette.SecuredAction.async{ req =>
     val user = req.identity
-    schemaRepo
+    schemasDao
       .queryFirst(
         Json.obj(
           "_id" -> Json.obj("$oid" -> meterSchemaId),
@@ -92,8 +92,8 @@ class SchemaController @Inject()(
       )
       .map { maybeMeter =>
         maybeMeter
-          .map { meter => Ok(Json.toJson(SchemaDao.toDao(meter))) }
-          .getOrElse(NotFound(Json.toJson(MeterError("schema.not.found"))))
+          .map { meter => Ok(Json.toJson(SchemaDto.toDto(meter))) }
+          .getOrElse(NotFound(Json.toJson(ErrorResponse("schema.not.found"))))
       }
   }
 
@@ -106,12 +106,12 @@ class SchemaController @Inject()(
       new ApiResponse(
         code = 400,
         message = "invalid.meter.format",
-        response = classOf[MeterError]
+        response = classOf[ErrorResponse]
       ),
       new ApiResponse(
         code = 500,
         message = "create.schema.failed",
-        response = classOf[MeterError]
+        response = classOf[ErrorResponse]
       )
     )
   )
@@ -135,15 +135,15 @@ class SchemaController @Inject()(
             _id = Some(BSONObjectID.generate()),
             userId = Some(user.id)
           )
-          schemaRepo.addMeterSchema(meterSchemaWithId)
+          schemasDao.addMeterSchema(meterSchemaWithId)
             .map { res =>
-              if (res.ok) Created(Json.toJson(SchemaDao.toDao(meterSchemaWithId)))
-              else InternalServerError(Json.toJson(MeterError("create.schema.failed")))
+              if (res.ok) Created(Json.toJson(SchemaDto.toDto(meterSchemaWithId)))
+              else InternalServerError(Json.toJson(ErrorResponse("create.schema.failed")))
             }
         }
       )
       .fold(
-        errs => Future.successful(BadRequest(MeterError("invalid.meter.format", errs).toJson)),
+        errs => Future.successful(BadRequest(ErrorResponse("invalid.meter.format", errs).toJson)),
         identity
       )
   }
@@ -156,7 +156,7 @@ class SchemaController @Inject()(
                          @ApiParam(value = "The id of the schema to delete") meterSchemaId: String
                        ): Action[AnyContent] = silhouette.SecuredAction.async { req =>
     val user = req.identity
-    schemaRepo
+    schemasDao
         .deleteSchema(
           Json.obj(
             "_id" -> Json.obj("$oid" -> meterSchemaId),
@@ -164,7 +164,7 @@ class SchemaController @Inject()(
           )
         )
       .map {
-        case Some(schema@MeterSchema(_, _, _, _)) => Ok(Json.toJson(SchemaDao.toDao(schema)))
+        case Some(schema@MeterSchema(_, _, _, _)) => Ok(Json.toJson(SchemaDto.toDto(schema)))
         case None => NotFound
       }
   }

@@ -17,7 +17,7 @@ import com.mohiva.play.silhouette.impl.util._
 import com.mohiva.play.silhouette.password.BCryptSha256PasswordHasher
 import com.mohiva.play.silhouette.persistence.daos.{DelegableAuthInfoDAO, MongoAuthInfoDAO}
 import com.mohiva.play.silhouette.persistence.repositories.{CacheAuthenticatorRepository, DelegableAuthInfoRepository}
-import models.auth.daos.{AuthTokenDAO, AuthTokenDAOImpl}
+import models.auth.daos.{AuthTokenDao, AuthTokenDaoImpl}
 import models.auth.daos._
 import models.auth.services.{AuthTokenService, AuthTokenServiceImpl, UserService, UserServiceImpl}
 import net.ceedubs.ficus.Ficus._
@@ -44,10 +44,10 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
 
-    bind[AuthTokenDAO].to[AuthTokenDAOImpl]
+    bind[AuthTokenDao].to[AuthTokenDaoImpl]
     bind[AuthTokenService].to[AuthTokenServiceImpl]
     bind[UserService].to[UserServiceImpl]
-    bind[UserDAO].to[UserDAOImpl]
+    bind[UserDao].to[UserDaoImpl]
 
     bind[IDGenerator].toInstance(new SecureRandomIDGenerator())
     bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))

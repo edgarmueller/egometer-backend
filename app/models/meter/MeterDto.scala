@@ -2,7 +2,7 @@ package models.meter
 
 import java.util.UUID
 
-case class MeterDao(
+case class MeterDto(
                   id: Option[String],
                   schemaId: String,
                   name: String,
@@ -14,9 +14,9 @@ case class MeterDao(
                   weeklyGoal: Option[Int]
                 )
 
-object MeterDao {
-  def toDao(meter: Meter): MeterDao = {
-    MeterDao(
+object MeterDto {
+  def toDto(meter: Meter): MeterDto = {
+    MeterDto(
       meter._id.map(_.stringify),
       meter.schemaId,
       meter.name,
