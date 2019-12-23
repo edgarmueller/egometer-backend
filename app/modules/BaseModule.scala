@@ -3,6 +3,7 @@ package modules
 import com.google.inject.AbstractModule
 import com.mohiva.play.silhouette.api.util.CacheLayer
 import com.mohiva.play.silhouette.impl.util.PlayCacheLayer
+import models.entry.MeterEntriesService
 import net.codingwell.scalaguice.ScalaModule
 
 /**
@@ -16,6 +17,6 @@ class BaseModule extends AbstractModule with ScalaModule {
   def configure(): Unit = {
     bind[java.time.Clock].toInstance(java.time.Clock.systemUTC())
     bind[CacheLayer].to[PlayCacheLayer]
-
+    bind[MeterEntriesService]
   }
 }

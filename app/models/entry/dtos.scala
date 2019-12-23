@@ -1,5 +1,6 @@
 package models.entry
 
+import models.meter.MeterDto
 import play.api.libs.json.{JsString, JsValue}
 
 case class MeterEntryDto(
@@ -19,3 +20,12 @@ object MeterEntryDto {
     )
   }
 }
+
+case class MeterEntriesByMeterDto(
+                                   meterId: String,
+                                   meter: MeterDto,
+                                   entries: Seq[MeterEntryDto],
+                                   progress: Option[Double]
+                                 )
+
+case class MeterEntriesEnvelopeDto(meters: Seq[MeterEntriesByMeterDto])

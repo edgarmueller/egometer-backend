@@ -74,4 +74,6 @@ scalacOptions ++= Seq(
   "-Xlint:-unused,_"
 )
 
+coverageExcludedPackages := "<empty>;Reverse.*;router;"
+
 javaOptions in Test += "-Dconfig.file=conf/application.test.conf"

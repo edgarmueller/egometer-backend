@@ -9,28 +9,28 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import models.entry.{MeterEntry, MeterEntryDto, MeterEntriesDao}
+import models.entry.{MeterEntriesDao, MeterEntriesEnvelopeDto, MeterEntriesService, MeterEntry, MeterEntryDto}
 import models.meter.{Meter, MetersDao}
 import models.schema.{Schema, SchemasDao}
-import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import org.joda.time.IllegalFieldValueException
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc._
 import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 /**
-  * Controller for managing entries of a meter.
-  */
+ * Controller for managing entries of a meter.
+ */
 @Api(value = "/entries")
 class MeterEntriesController @Inject()(
                                         controllerComponents: ControllerComponents,
                                         schemaDao: SchemasDao,
                                         metersDao: MetersDao,
                                         meterEntriesDao: MeterEntriesDao,
+                                        meterEntriesService: MeterEntriesService,
                                         silhouette: Silhouette[DefaultEnv]
-                                    )(implicit ec: ExecutionContext)
+                                      )(implicit ec: ExecutionContext)
   extends AbstractController(controllerComponents) with ApiController with WithValidator {
 
   import Version7._
@@ -70,63 +70,24 @@ class MeterEntriesController @Inject()(
   }
 
   @ApiOperation(
-    value = "Get all available meter entries per meter for a month based on the given date",
-    response = classOf[MeterEntryDto],
-    responseContainer = "Map"
+    value = "Get all entries for a given time given month or week of a year",
+    response = classOf[MeterEntriesEnvelopeDto]
   )
-  def findEntriesByDate(date: String, days: Option[Int]): Action[AnyContent] = {
-    import JsonFormats._
-    import org.joda.time.format.DateTimeFormat
+  def findEntries(
+                   year: Option[Int],
+                   month: Option[Int],
+                   week: Option[Int]
+                 ): Action[AnyContent] = {
     silhouette.SecuredAction.async { implicit request =>
-      val fmt = DateTimeFormat.forPattern("yyyy-MM-dd")
-      Try { fmt.parseLocalDate(date) }
-        .map(fromDate => {
-          val startDate = fromDate.minusDays(fromDate.getDayOfMonth - 1)
-          val endDate = fromDate.plusDays(days.getOrElse(31))
-
-          val selector = Json.obj(
-            "date" -> Json.obj(
-              "$gte" -> startDate.toString,
-              "$lte" -> endDate.toString
-            )
-          )
-
-          findEntries(selector).map(groupedEntries =>
-            Ok(Json.toJson(groupedEntries))
-          )
-        })
-        .getOrElse(
-          Future.successful(
-            BadRequest(MeterResponse("invalid.date.format", Messages("invalid.date.format")))
-          )
-        )
-    }
-  }
-
-  @ApiOperation(
-    value = "Get all available meter entries per meter for a month based on the given date",
-    response = classOf[MeterEntryDto],
-    responseContainer = "Map"
-  )
-  def findMeterEntriesByDate(date: String, meterId: String, days: Option[Int]): Action[AnyContent] = {
-    import JsonFormats._
-    import org.joda.time.format.DateTimeFormat
-    silhouette.SecuredAction.async { _ =>
-      val fmt = DateTimeFormat.forPattern("yyyy-MM-dd")
-      val fromDate: LocalDate = fmt.parseLocalDate(date)
-
-      val startDate = fromDate.minusDays(fromDate.getDayOfMonth - 1)
-      val endDate = fromDate.plusDays(days.getOrElse(31))
-
-      val selector = Json.obj(
-        "date" -> Json.obj(
-          "$gte" -> startDate.toString,
-          "$lte" -> endDate.toString
-        ),
-        "meterId" -> meterId
-      )
-
-      findEntries(selector).map(groupedEntries => Ok(Json.toJson(groupedEntries)))
+      val y = year.getOrElse(new DateTime().getYear)
+      val m = month.getOrElse(new DateTime().getMonthOfYear)
+      week
+        .map(w => meterEntriesService.findEntriesByWeek(y, w))
+        .getOrElse(meterEntriesService.findEntriesByYearAndMonth(y, m))
+        .map(envelopeDto => Ok(Json.toJson(envelopeDto)))
+        .recover {
+          case _: IllegalFieldValueException => BadRequest("invalid week")
+        }
     }
   }
 
@@ -145,17 +106,6 @@ class MeterEntriesController @Inject()(
           }
         }}
     }
-  }
-
-  private def findEntries(selector: JsObject): Future[Map[String, Seq[MeterEntryDto]]] = {
-    meterEntriesDao
-      .query(selector)
-      .map {
-        entries => {
-          val grouped: Map[String, Seq[MeterEntry]] = entries.seq.groupBy(_.meterId)
-          grouped.mapValues(entries => entries.map(MeterEntryDto.toDto))
-        }
-      }
   }
 
   private def upsertEntry(entry: MeterEntry)(meter: Meter): Future[Result] = {

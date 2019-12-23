@@ -81,7 +81,7 @@ trait MongoSpecification extends BaseSpecification {
        */
       def after: Unit = {
         Await.result(reactiveMongoAPI.database.flatMap { db =>
-          db.drop()// .runCommand(DropDatabase, FailoverStrategy.default)
+          db.drop()
         }, Duration(60, SECONDS))
       }
     }

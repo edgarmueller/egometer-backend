@@ -66,25 +66,5 @@ class MetersControllerSpec
       )
       allMeters.as[JsArray].value.size must beEqualTo(1)
     }
-
-    "delete all entries if meter is deleted" in new AuthContext with MongoContext {
-
-      override val fixtures = Map(
-        "meters" -> Seq("models/daos/meters/meters.json"),
-        "entries" -> Seq("models/daos/entries/entries.json")
-      )
-
-      val date = "2018-06-18"
-      val meterId = "5b352e060d23cb43f5356301"
-
-      val content: JsValue = contentAsJson(
-        route(
-          application,
-          FakeRequest(GET, s"/api/v1/entries/$date").withAuthenticator(loginInfo)
-        ).get
-      )
-
-      content must beEqualTo(Json.obj())
-    }
   }
 }
