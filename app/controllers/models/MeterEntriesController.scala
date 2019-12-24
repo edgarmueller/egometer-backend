@@ -9,7 +9,7 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import models.entry.{MeterEntriesDao, MeterEntriesEnvelopeDto, MeterEntriesService, MeterEntry, MeterEntryDto}
+import models.entry.{MeterEntriesByMeterDto, MeterEntriesDao, MeterEntriesService, MeterEntry, MeterEntryDto}
 import models.meter.{Meter, MetersDao}
 import models.schema.{Schema, SchemasDao}
 import org.joda.time.IllegalFieldValueException
@@ -71,7 +71,7 @@ class MeterEntriesController @Inject()(
 
   @ApiOperation(
     value = "Get all entries for a given time given month or week of a year",
-    response = classOf[MeterEntriesEnvelopeDto]
+    response = classOf[MeterEntriesByMeterDto],
   )
   def findEntries(
                    year: Option[Int],
@@ -82,7 +82,7 @@ class MeterEntriesController @Inject()(
       val y = year.getOrElse(new DateTime().getYear)
       val m = month.getOrElse(new DateTime().getMonthOfYear)
       week
-        .map(w => meterEntriesService.findEntriesByWeek(y, w))
+        .map(w => meterEntriesService.findEntriesByYearAndWeek(y, w))
         .getOrElse(meterEntriesService.findEntriesByYearAndMonth(y, m))
         .map(envelopeDto => Ok(Json.toJson(envelopeDto)))
         .recover {

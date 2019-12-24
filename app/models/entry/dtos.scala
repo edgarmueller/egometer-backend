@@ -27,5 +27,3 @@ case class MeterEntriesByMeterDto(
                                    entries: Seq[MeterEntryDto],
                                    progress: Option[Double]
                                  )
-
-case class MeterEntriesEnvelopeDto(meters: Seq[MeterEntriesByMeterDto])

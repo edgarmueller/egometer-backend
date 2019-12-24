@@ -2,7 +2,8 @@ package models.entry
 
 import com.google.inject.Inject
 import models.meter.{Meter, MeterDto, MetersDao}
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, Days}
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,31 +14,42 @@ class MeterEntriesService @Inject()(
                                      meterEntriesDao: MeterEntriesDao,
                                    )(implicit ec: ExecutionContext) {
 
-  import models.JsonFormats._
+  val DateFormat: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
 
-  def findEntriesByYearAndMonth(year: Int, month: Int): Future[MeterEntriesEnvelopeDto] = {
-    // TODO: validate year and month
-    val fromDate = new DateTime(year, month, 1, 0, 0)
-    val days = new DateTime()
-      .withWeekyear(year)
-      .withMonthOfYear(month)
-      .dayOfMonth()
-      .withMaximumValue()
-      .getDayOfMonth
-    val endDate = fromDate.plusDays(days)
-    val selector = Json.obj(
-      "date" -> Json.obj(
-        "$gte" -> fromDate.toString,
-        "$lte" -> endDate.toString
-      )
+  def findEntriesByYearAndMonth(year: Int, month: Int): Future[Seq[MeterEntriesByMeterDto]] = {
+    Try {
+      new DateTime(year, month, 1, 0, 0)
+    }.fold(
+      error => Future.failed(error),
+      fromDate => {
+        val days = new DateTime()
+          .withWeekyear(year)
+          .withMonthOfYear(month)
+          .dayOfMonth()
+          .withMaximumValue()
+          .getDayOfMonth
+        val endDate = fromDate.plusDays(days)
+        val selector = Json.obj(
+          "date" -> Json.obj(
+            "$gte" -> fromDate.toString,
+            "$lte" -> endDate.toString
+          )
+        )
+        findEntries(selector)
+          .map(groupedEntries =>
+            groupedEntries.map { case (meter, entries) =>
+              MeterEntriesByMeterDto(
+                meter._id.map(_.stringify).getOrElse("not found"),
+                MeterDto.toDto(meter),
+                entries,
+                this.calcProgress(meter, entries, fromDate, endDate)
+              )
+            }.toSeq)
+      }
     )
-    findEntries(selector)
-      .map(groupedEntries =>
-        groupedEntries.map(x => MeterEntriesByMeterDto(x._1._id.map(_.stringify).getOrElse("not found"), MeterDto.toDto(x._1), x._2, None)).toSeq)
-      .map(MeterEntriesEnvelopeDto)
   }
 
-  def findEntriesByWeek(year: Int, week: Int): Future[MeterEntriesEnvelopeDto] = {
+  def findEntriesByYearAndWeek(year: Int, week: Int): Future[Seq[MeterEntriesByMeterDto]] = {
     Try {
       new DateTime()
         .withWeekyear(year)
@@ -46,20 +58,24 @@ class MeterEntriesService @Inject()(
     }.fold(
       error => Future.failed(error),
       fromDate => {
-        val endDate = fromDate.plusDays(7)
+        val endDate = fromDate.plusDays(6)
         val selector = Json.obj(
           "date" -> Json.obj(
-            "$gte" -> fromDate.toString,
-            "$lte" -> endDate.toString
+            "$gte" -> DateFormat.print(fromDate),
+            "$lte" -> DateFormat.print(endDate)
           )
         )
         findEntries(selector)
           .map(groupedEntries => {
-            groupedEntries.map(x =>
-              MeterEntriesByMeterDto(x._1._id.map(_.stringify).getOrElse("not found"), MeterDto.toDto(x._1), x._2, this.calcProgress(x._1, x._2))
-            ).toSeq
+            groupedEntries.map { case (meter, entries) =>
+              MeterEntriesByMeterDto(
+                meter._id.map(_.stringify).getOrElse("not found"),
+                MeterDto.toDto(meter),
+                entries,
+                this.calcProgress(meter, entries, fromDate, endDate)
+              )
+            }.toSeq
           })
-          .map(MeterEntriesEnvelopeDto)
       })
   }
 
@@ -80,14 +96,18 @@ class MeterEntriesService @Inject()(
                     case None => Future.failed(new IllegalStateException(s"Meter s${grouped._1} not found"))
                   }
               )
-          ).map(x => x.toMap)
+          ).map(_.toMap)
         }
       }
   }
 
-  private def calcProgress(meter: Meter, entries: Seq[MeterEntryDto]): Option[Double] = {
-    meter.weeklyGoal.map(goal => (meter, goal))
-      .map(weeklyGoal => entries.count(e => this.goalAccomplished(weeklyGoal._1, e)).toDouble/weeklyGoal._2)
+  private def calcProgress(meter: Meter, entries: Seq[MeterEntryDto], fromDate: DateTime, toDate: DateTime): Option[Double] = {
+    val rangeInDays = Days.daysBetween(fromDate.withTimeAtStartOfDay(), toDate.withTimeAtStartOfDay()).getDays
+    meter.weeklyGoal
+      .map(goal => {
+        val actualGoal = (2 * rangeInDays.toDouble)/goal
+        entries.count(e => this.goalAccomplished(meter, e))/actualGoal
+      })
   }
 
   private def goalAccomplished(meter: Meter, entry: MeterEntryDto): Boolean = {
