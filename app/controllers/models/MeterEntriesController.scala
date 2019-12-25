@@ -15,9 +15,11 @@ import models.schema.{Schema, SchemasDao}
 import org.joda.time.IllegalFieldValueException
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc._
+import reactivemongo.bson.BSONObjectID
 import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 /**
  * Controller for managing entries of a meter.
@@ -93,18 +95,25 @@ class MeterEntriesController @Inject()(
 
   @ApiOperation(
     value = "Delete a meter entry",
-    response = classOf[Boolean]
+    response = classOf[MeterEntryDto]
   )
   def deleteEntry(entryId: String): Action[AnyContent] = {
     silhouette.SecuredAction.async { _ =>
-      meterEntriesDao.deleteEntries(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
-        .map { writeResult => {
-          if (writeResult.ok) {
-            Ok(Json.toJson(writeResult.ok))
-          } else {
-            BadRequest(Json.toJson("entry.does.not.exist"))
-          }
-        }}
+      if (BSONObjectID.parse(entryId).isFailure) {
+        Future.successful(BadRequest("invalid id format"))
+      } else {
+        val entryToBeDeleted = meterEntriesService.findById(entryId)
+        entryToBeDeleted.flatMap(maybeEntry =>
+          maybeEntry.fold(Future.successful(NotFound("not found")))(entry =>
+            meterEntriesService
+              .deleteEntryById(entryId)
+              .map(deleted => {
+                if (deleted) Ok(Json.toJson(entry))
+                else InternalServerError("could not delete entry")
+              })
+          )
+        )
+      }
     }
   }
 

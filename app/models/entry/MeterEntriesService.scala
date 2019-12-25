@@ -16,67 +16,44 @@ class MeterEntriesService @Inject()(
 
   val DateFormat: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
 
+  def deleteEntryById(entryId: String): Future[Boolean] = {
+    meterEntriesDao
+      .deleteEntries(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
+      .map(_.ok)
+  }
+
+  def findById(entryId: String): Future[Option[MeterEntryDto]] = {
+    meterEntriesDao
+      .query(Json.obj("_id" -> Json.obj("$oid" -> entryId)))
+      .map(_.headOption)
+      .map(_.map(MeterEntryDto.toDto))
+  }
+
   def findEntriesByYearAndMonth(year: Int, month: Int): Future[Seq[MeterEntriesByMeterDto]] = {
-    Try {
-      new DateTime(year, month, 1, 0, 0)
-    }.fold(
-      error => Future.failed(error),
-      fromDate => {
-        val days = new DateTime()
-          .withWeekyear(year)
-          .withMonthOfYear(month)
-          .dayOfMonth()
-          .withMaximumValue()
-          .getDayOfMonth
-        val endDate = fromDate.plusDays(days)
-        val selector = Json.obj(
-          "date" -> Json.obj(
-            "$gte" -> fromDate.toString,
-            "$lte" -> endDate.toString
+    checkValidMonth(year, month)
+      .fold(
+        error => Future.failed(error),
+        fromDate => {
+          val days = getDaysOfMonth(year, month)
+          val toDate = fromDate.plusDays(days)
+          val selector = createDateRangeQuery(fromDate, toDate)
+          findEntries(selector)
+            .map(groupedEntries => this.calcProgress(groupedEntries, fromDate, toDate)
           )
-        )
-        findEntries(selector)
-          .map(groupedEntries =>
-            groupedEntries.map { case (meter, entries) =>
-              MeterEntriesByMeterDto(
-                meter._id.map(_.stringify).getOrElse("not found"),
-                MeterDto.toDto(meter),
-                entries,
-                this.calcProgress(meter, entries, fromDate, endDate)
-              )
-            }.toSeq)
-      }
-    )
+        }
+      )
   }
 
   def findEntriesByYearAndWeek(year: Int, week: Int): Future[Seq[MeterEntriesByMeterDto]] = {
-    Try {
-      new DateTime()
-        .withWeekyear(year)
-        .withWeekOfWeekyear(week)
-        .withDayOfWeek(1)
-    }.fold(
-      error => Future.failed(error),
-      fromDate => {
-        val endDate = fromDate.plusDays(6)
-        val selector = Json.obj(
-          "date" -> Json.obj(
-            "$gte" -> DateFormat.print(fromDate),
-            "$lte" -> DateFormat.print(endDate)
-          )
-        )
-        findEntries(selector)
-          .map(groupedEntries => {
-            groupedEntries.map { case (meter, entries) =>
-              MeterEntriesByMeterDto(
-                meter._id.map(_.stringify).getOrElse("not found"),
-                MeterDto.toDto(meter),
-                entries,
-                this.calcProgress(meter, entries, fromDate, endDate)
-              )
-            }.toSeq
-          })
-      })
+    checkValidWeek(year, week)
+      .fold(
+        error => Future.failed(error),
+        fromDate => {
+          val toDate = fromDate.plusDays(6)
+          val selector = createDateRangeQuery(fromDate, toDate)
+          findEntries(selector)
+            .map(groupedEntries => this.calcProgress(groupedEntries, fromDate, toDate))
+        })
   }
 
   private def findEntries(selector: JsObject): Future[Map[Meter, Seq[MeterEntryDto]]] = {
@@ -101,7 +78,46 @@ class MeterEntriesService @Inject()(
       }
   }
 
-  private def calcProgress(meter: Meter, entries: Seq[MeterEntryDto], fromDate: DateTime, toDate: DateTime): Option[Double] = {
+  private def calcProgress(groupedEntries: Map[Meter, Seq[MeterEntryDto]], fromDate: DateTime, toDate: DateTime) = {
+    groupedEntries.map { case (meter, entries) =>
+      MeterEntriesByMeterDto(
+        meter._id.map(_.stringify).getOrElse("not found"),
+        MeterDto.toDto(meter),
+        entries,
+        this.calcProgressForMeter(meter, entries, fromDate, toDate)
+      )
+    }.toSeq
+  }
+
+  private def createDateRangeQuery(fromDate: DateTime, toDate: DateTime) =
+    Json.obj(
+      "date" -> Json.obj(
+        "$gte" -> DateFormat.print(fromDate),
+        "$lte" -> DateFormat.print(toDate)
+      )
+    )
+
+  private def checkValidMonth(year: Int, month: Int) = Try {
+    new DateTime(year, month, 1, 0, 0)
+  }
+
+  private def checkValidWeek(year: Int, week: Int) =
+    Try {
+      new DateTime()
+        .withWeekyear(year)
+        .withWeekOfWeekyear(week)
+        .withDayOfWeek(1)
+    }
+
+  private def getDaysOfMonth(year: Int, month: Int): Int =
+    new DateTime()
+      .withWeekyear(year)
+      .withMonthOfYear(month)
+      .dayOfMonth()
+      .withMaximumValue()
+      .getDayOfMonth
+
+  private def calcProgressForMeter(meter: Meter, entries: Seq[MeterEntryDto], fromDate: DateTime, toDate: DateTime): Option[Double] = {
     val rangeInDays = Days.daysBetween(fromDate.withTimeAtStartOfDay(), toDate.withTimeAtStartOfDay()).getDays
     meter.weeklyGoal
       .map(goal => {

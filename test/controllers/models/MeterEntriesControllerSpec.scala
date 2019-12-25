@@ -130,6 +130,51 @@ class MeterEntriesControllerSpec(implicit ee: ExecutionEnv)
         ) must beSome.which(status(_) == BAD_REQUEST)
       }
     }
+
+    "delete entry by id" in new AuthContext with MongoContext {
+      override val fixtures = Map(
+        "meters" -> Seq("models/meters/meters.json"),
+        "entries" -> Seq("models/entries/entries.json")
+      )
+
+      new WithApplication(application) with MongoScope {
+
+        val meterId = "5b352e060d23cb43f5356301"
+
+        route(
+          application,
+          FakeRequest(DELETE, "/api/v1/entries/5b77038bb80100566b3883f2").withAuthenticator(loginInfo)
+        ) must beSome.which(status(_) == OK)
+      }
+    }
+
+    "delete entry with invalid id should return BadRequest" in new AuthContext with MongoContext {
+      override val fixtures = Map(
+        "meters" -> Seq("models/meters/meters.json"),
+        "entries" -> Seq("models/entries/entries.json")
+      )
+
+      new WithApplication(application) with MongoScope {
+        route(
+          application,
+          FakeRequest(DELETE, "/api/v1/entries/nonono").withAuthenticator(loginInfo)
+        ) must beSome.which(status(_) == BAD_REQUEST)
+      }
+    }
+
+    "delete entry by id which does not exist should return NotFound" in new AuthContext with MongoContext {
+      override val fixtures = Map(
+        "meters" -> Seq("models/meters/meters.json"),
+        "entries" -> Seq("models/entries/entries.json")
+      )
+
+      new WithApplication(application) with MongoScope {
+        route(
+          application,
+          FakeRequest(DELETE, "/api/v1/entries/5b77038bb80100566b3883f1").withAuthenticator(loginInfo)
+        ) must beSome.which(status(_) == NOT_FOUND)
+      }
+    }
   }
 
 }
