@@ -62,8 +62,14 @@ class MeterEntriesController @Inject()(
           .findById(meterId)
           .flatMap(
             _.fold(
-              Future(NotFound(ErrorResponse("meter.not.found").toJson))
-            )(upsertEntry(MeterEntry(None, meterId, updateEntry.value, JsString(date))))
+              Future(BadRequest(ErrorResponse("meter.not.found").toJson))
+            )(meter =>
+              meterEntriesService.upsertEntry(MeterEntry(None, meterId, updateEntry.value, JsString(date)))(meter)
+              .map(result => result.fold(
+                errors => BadRequest(errors.toJson),
+                maybeResult => maybeResult.fold(BadRequest("schema.not.found"))(entry => Ok(Json.toJson(entry))
+              )))
+            )
           )
       )
       .getOrElse(
@@ -115,34 +121,5 @@ class MeterEntriesController @Inject()(
         )
       }
     }
-  }
-
-  private def upsertEntry(entry: MeterEntry)(meter: Meter): Future[Result] = {
-    schemaDao
-      .findById(meter.schemaId)
-      .flatMap(maybeSchema =>
-        maybeSchema
-          .flatMap(parseSchema)
-          .map(upsertValidEntry(entry))
-          .getOrElse(Future(InternalServerError(ErrorResponse(s"schema.not.found").toJson)))
-      )
-  }
-
-  private def parseSchema(meterSchema: Schema): Option[SchemaType] = {
-    Json.fromJson[SchemaType](meterSchema.schema).asOpt
-  }
-
-  private def upsertValidEntry(entry: MeterEntry)(schema: SchemaType): Future[Result] = {
-    validator.validate(schema)(entry.value)
-      .fold(
-        errors => Future(BadRequest(ErrorResponse(errors).toJson)),
-        _ => meterEntriesDao.upsertEntry(entry)
-          .map { upsertedEntry =>
-            upsertedEntry
-              .map(e =>
-                Ok(Json.toJson(MeterEntryDto.toDto(e))))
-              .getOrElse(NotFound)
-          }
-      )
   }
 }

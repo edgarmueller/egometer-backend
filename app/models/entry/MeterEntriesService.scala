@@ -1,7 +1,10 @@
 package models.entry
 
+import com.eclipsesource.schema.SchemaType
 import com.google.inject.Inject
+import controllers.common.WithValidator
 import models.meter.{Meter, MeterDto, MetersDao}
+import models.schema.{Schema, SchemasDao}
 import org.joda.time.{DateTime, Days}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.libs.json._
@@ -11,8 +14,12 @@ import scala.util.Try
 
 class MeterEntriesService @Inject()(
                                      metersDao: MetersDao,
-                                     meterEntriesDao: MeterEntriesDao,
-                                   )(implicit ec: ExecutionContext) {
+                                     schemaDao: SchemasDao,
+                                     meterEntriesDao: MeterEntriesDao
+                                   )(implicit ec: ExecutionContext)
+  extends WithValidator {
+
+  import com.eclipsesource.schema.drafts.Version7._
 
   val DateFormat: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
 
@@ -54,6 +61,17 @@ class MeterEntriesService @Inject()(
           findEntries(selector)
             .map(groupedEntries => this.calcProgress(groupedEntries, fromDate, toDate))
         })
+  }
+
+  def upsertEntry(entry: MeterEntry)(meter: Meter): Future[Either[Seq[(JsPath, Seq[JsonValidationError])], Option[MeterEntryDto]]] = {
+    schemaDao
+      .findById(meter.schemaId)
+      .flatMap(maybeSchema => {
+        maybeSchema
+          .flatMap(parseSchema)
+          .map(upsertValidEntry(entry))
+          .getOrElse(Future(Right(None)))
+      })
   }
 
   private def findEntries(selector: JsObject): Future[Map[Meter, Seq[MeterEntryDto]]] = {
@@ -132,5 +150,18 @@ class MeterEntriesService @Inject()(
       case b: JsBoolean => b.value
       case _ => true
     }
+  }
+
+  private def upsertValidEntry(entry: MeterEntry)(schema: SchemaType): Future[Either[Seq[(JsPath, Seq[JsonValidationError])], Option[MeterEntryDto]]] = {
+    validator.validate(schema)(entry.value)
+      .fold(
+        errors => Future.successful(Left(errors)),
+        _ => meterEntriesDao.upsertEntry(entry)
+          .map { upsertedEntry => Right(upsertedEntry.map(MeterEntryDto.toDto)) }
+      )
+  }
+
+  private def parseSchema(meterSchema: Schema): Option[SchemaType] = {
+    Json.fromJson[SchemaType](meterSchema.schema).asOpt
   }
 }
