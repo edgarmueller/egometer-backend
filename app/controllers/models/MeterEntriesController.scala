@@ -1,7 +1,6 @@
 package controllers.models
 
 import com.eclipsesource.schema._
-import com.eclipsesource.schema.drafts.Version7
 import com.github.nscala_time.time.Imports._
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.common.{ApiController, WithValidator}
@@ -9,9 +8,8 @@ import io.swagger.annotations._
 import javax.inject.Inject
 import models.JsonFormats._
 import models._
-import models.entry.{MeterEntriesByMeterDto, MeterEntriesDao, MeterEntriesService, MeterEntry, MeterEntryDto}
-import models.meter.{Meter, MetersDao}
-import models.schema.{Schema, SchemasDao}
+import models.entry.{MeterEntriesByMeterDto, MeterEntriesService, MeterEntry, MeterEntryDto}
+import models.meter.MetersService
 import org.joda.time.IllegalFieldValueException
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc._
@@ -19,7 +17,6 @@ import reactivemongo.bson.BSONObjectID
 import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 /**
  * Controller for managing entries of a meter.
@@ -27,15 +24,11 @@ import scala.util.Try
 @Api(value = "/entries")
 class MeterEntriesController @Inject()(
                                         controllerComponents: ControllerComponents,
-                                        schemaDao: SchemasDao,
-                                        metersDao: MetersDao,
-                                        meterEntriesDao: MeterEntriesDao,
+                                        metersService: MetersService,
                                         meterEntriesService: MeterEntriesService,
                                         silhouette: Silhouette[DefaultEnv]
                                       )(implicit ec: ExecutionContext)
   extends AbstractController(controllerComponents) with ApiController with WithValidator {
-
-  import Version7._
 
   @ApiOperation(
     value = "Create a meter entry",
@@ -58,17 +51,17 @@ class MeterEntriesController @Inject()(
   def upsertMeterEntry(meterId: String, date: String): Action[JsValue] = silhouette.SecuredAction.async(parse.json) { req =>
     meterEntryUpdateFormat.reads(req.body)
       .map(updateEntry =>
-        metersDao
+        metersService
           .findById(meterId)
           .flatMap(
             _.fold(
               Future(BadRequest(ErrorResponse("meter.not.found").toJson))
             )(meter =>
-              meterEntriesService.upsertEntry(MeterEntry(None, meterId, updateEntry.value, JsString(date)))(meter)
-              .map(result => result.fold(
-                errors => BadRequest(errors.toJson),
-                maybeResult => maybeResult.fold(BadRequest("schema.not.found"))(entry => Ok(Json.toJson(entry))
-              )))
+              meterEntriesService.upsertEntry(MeterEntry(None, meterId, updateEntry.value, JsString(date)))(meter.schemaId)
+                .map(result => result.fold(
+                  errors => BadRequest(errors.toJson),
+                  maybeResult => maybeResult.fold(BadRequest("schema.not.found"))(entry => Ok(Json.toJson(entry))
+                  )))
             )
           )
       )

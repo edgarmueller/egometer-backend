@@ -63,15 +63,20 @@ class MeterEntriesService @Inject()(
         })
   }
 
-  def upsertEntry(entry: MeterEntry)(meter: Meter): Future[Either[Seq[(JsPath, Seq[JsonValidationError])], Option[MeterEntryDto]]] = {
+  def upsertEntry(entry: MeterEntry)(schemaId: String): Future[Either[Seq[(JsPath, Seq[JsonValidationError])], Option[MeterEntryDto]]] = {
     schemaDao
-      .findById(meter.schemaId)
+      .findById(schemaId)
       .flatMap(maybeSchema => {
         maybeSchema
           .flatMap(parseSchema)
           .map(upsertValidEntry(entry))
           .getOrElse(Future(Right(None)))
       })
+  }
+
+  def deleteByMeterId(meterId: String) = {
+    meterEntriesDao
+      .deleteEntries(Json.obj("meterId" -> meterId))
   }
 
   private def findEntries(selector: JsObject): Future[Map[Meter, Seq[MeterEntryDto]]] = {
