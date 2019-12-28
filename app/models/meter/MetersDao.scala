@@ -2,7 +2,7 @@ package models.meter
 
 import javax.inject.Inject
 import models.JsonFormats
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.{Cursor, ReadPreference}
@@ -28,7 +28,8 @@ class MetersDao @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: React
     BSONObjectID.parse(meterId)
       .fold(
         Future.failed,
-        id => meterCollection.flatMap(_.find[BSONDocument, Meter](BSONDocument("_id" -> id)).one[Meter])
+        id => meterCollection
+          .flatMap(_.find[BSONDocument, Meter](BSONDocument("_id" -> id)).one[Meter])
       )
   }
 

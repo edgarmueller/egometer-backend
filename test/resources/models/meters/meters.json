@@ -1,5 +1,5 @@
 {
-  "_id":{ "$oid":"5b352e060d23cb43f5356301" },
+  "_id": { "$oid": "5b352e060d23cb43f5356301" },
   "schemaId": "5b352d1821d900141fc5ab03",
   "name":"Water cups",
   "widget":"Bars",
