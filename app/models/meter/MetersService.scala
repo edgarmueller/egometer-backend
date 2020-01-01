@@ -35,9 +35,10 @@ class MetersService @Inject()(
       .map(_.map(MeterDto.toDto))
   }
 
-  def deleteById(meterId: String): Future[Option[Meter]] = {
+  def deleteById(meterId: String): Future[Option[MeterDto]] = {
     metersDao
       .deleteMeter(Json.obj("_id" -> Json.obj("$oid" -> meterId)))
+      .map(_.map(MeterDto.toDto))
   }
 
   def updateById(meterId: String, meter: Meter): Future[Option[MeterDto]] = {
@@ -48,9 +49,9 @@ class MetersService @Inject()(
       ).map(_.map(MeterDto.toDto))
   }
 
-  def addMeter(meter: Meter): Future[MeterDto] = {
+  def addMeter(meter: Meter): Future[Option[MeterDto]] = {
     metersDao
       .addMeter(meter)
-      .map(_ => MeterDto.toDto(meter))
+      .map(res => if (res.ok) Some(MeterDto.toDto(meter)) else None)
   }
 }

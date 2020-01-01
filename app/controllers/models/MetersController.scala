@@ -124,7 +124,7 @@ class MetersController @Inject()(
             metersService
               .deleteById(meterId)
               .map {
-                case Some(meter) => Ok(Json.toJson(MeterDto.toDto(meter)))
+                case Some(meter) => Ok(Json.toJson(meter))
                 case None => NotFound(Json.toJson(ErrorResponse("meter.not.found")))
               }
           }

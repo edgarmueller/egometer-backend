@@ -5,6 +5,7 @@ import com.mohiva.play.silhouette.api.util.CacheLayer
 import com.mohiva.play.silhouette.impl.util.PlayCacheLayer
 import models.entry.MeterEntriesService
 import models.meter.MetersService
+import models.schema.SchemasService
 import net.codingwell.scalaguice.ScalaModule
 
 /**
@@ -20,5 +21,6 @@ class BaseModule extends AbstractModule with ScalaModule {
     bind[CacheLayer].to[PlayCacheLayer]
     bind[MeterEntriesService]
     bind[MetersService]
+    bind[SchemasService]
   }
 }

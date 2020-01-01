@@ -6,13 +6,13 @@ import com.mohiva.play.silhouette.api.Silhouette
 import controllers.common.WithValidator
 import io.swagger.annotations._
 import javax.inject.Inject
-import models.JsonFormats._
 import models.ErrorResponse
-import play.api.libs.json.{JsNull, JsValue, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import models.JsonFormats._
+import models.schema.{SchemaDto, SchemasService}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc._
 import reactivemongo.bson.BSONObjectID
-import models.schema.{SchemaDto, SchemasDao, Schema => MeterSchema}
-import utils.auth.{DefaultEnv}
+import utils.auth.DefaultEnv
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Api(value = "/schemas")
 class SchemasController @Inject()(
                                    controllerComponents: ControllerComponents,
-                                   schemasDao: SchemasDao,
+                                   schemasService: SchemasService,
                                    silhouette: Silhouette[DefaultEnv]
                                 )(implicit ec: ExecutionContext)
   extends AbstractController(controllerComponents) with WithValidator {
@@ -58,16 +58,9 @@ class SchemasController @Inject()(
   )
   def getAllMeterSchemas: Action[AnyContent] = silhouette.SecuredAction.async { req =>
     val user = req.identity
-    schemasDao
-      .query(
-        Json.obj(
-          "$or" -> Json.arr(
-            Json.obj("userId" -> user.id),
-            Json.obj("userId" -> JsNull)
-          )
-        )
-      )
-      .map { meterSchemas => Ok(Json.toJson(meterSchemas.map(SchemaDto.toDto))) }
+    schemasService
+      .findByUserId(user.id.toString)
+      .map { schemas => Ok(Json.toJson(schemas)) }
   }
 
   @ApiOperation(
@@ -82,16 +75,10 @@ class SchemasController @Inject()(
                       @ApiParam(value = "The id of the meter schema to fetch") meterSchemaId: String
                     ): Action[AnyContent] = silhouette.SecuredAction.async{ req =>
     val user = req.identity
-    schemasDao
-      .queryFirst(
-        Json.obj(
-          "_id" -> Json.obj("$oid" -> meterSchemaId),
-          "userId" -> user.id
-        )
-      )
-      .map { maybeMeter =>
-        maybeMeter
-          .map { meter => Ok(Json.toJson(SchemaDto.toDto(meter))) }
+    schemasService.findById(meterSchemaId)
+      .map { maybeSchema =>
+        maybeSchema
+          .map { schemaDto => Ok(Json.toJson(schemaDto)) }
           .getOrElse(NotFound(Json.toJson(ErrorResponse("schema.not.found"))))
       }
   }
@@ -124,7 +111,6 @@ class SchemasController @Inject()(
     )
   )
   def addMeterSchema(): Action[JsValue] = silhouette.SecuredAction.async(parse.json){ req =>
-    // TODO: remove flatMap once validator has been fixed
     val user = req.identity
     validate(req.body)
       .flatMap(meterSchemaFormat.reads)
@@ -134,15 +120,16 @@ class SchemasController @Inject()(
             _id = Some(BSONObjectID.generate()),
             userId = Some(user.id)
           )
-          schemasDao.addMeterSchema(meterSchemaWithId)
-            .map { res =>
-              if (res.ok) Created(Json.toJson(SchemaDto.toDto(meterSchemaWithId)))
-              else InternalServerError(Json.toJson(ErrorResponse("create.schema.failed")))
+          schemasService.addSchema(meterSchemaWithId)
+            .map {
+              _.fold(InternalServerError(Json.toJson(ErrorResponse("create.schema.failed"))))(schemaDto =>
+                Created(Json.toJson(schemaDto))
+              )
             }
         }
       )
       .fold(
-        errs => Future.successful(BadRequest(ErrorResponse("invalid.meter.format", errs).toJson)),
+        errors => Future.successful(BadRequest(ErrorResponse("invalid.meter.format", errors).toJson)),
         identity
       )
   }
@@ -155,16 +142,24 @@ class SchemasController @Inject()(
                          @ApiParam(value = "The id of the schema to delete") meterSchemaId: String
                        ): Action[AnyContent] = silhouette.SecuredAction.async { req =>
     val user = req.identity
-    schemasDao
-        .deleteSchema(
-          Json.obj(
-            "_id" -> Json.obj("$oid" -> meterSchemaId),
-            "userId" -> user.id
-          )
-        )
-      .map {
-        case Some(schema@MeterSchema(_, _, _, _)) => Ok(Json.toJson(SchemaDto.toDto(schema)))
-        case None => NotFound
-      }
+    ifSchemaExists(meterSchemaId, user.id.toString, _ =>
+      schemasService.deleteById(meterSchemaId)
+        .map {
+          case Some(schemaDto) => Ok(Json.toJson(schemaDto))
+          case None => NotFound
+        }
+    )
+  }
+
+  private def ifSchemaExists(schemaId: String, userId: String, body: SchemaDto => Future[Result]) = {
+    schemasService
+      .findById(schemaId)
+      .flatMap(_.fold(Future.successful(NotFound("schema.not.found")))(schema =>
+        if (schema.userId.exists(_.toString == userId) || schema.userId.isEmpty) {
+          body(schema)
+        } else {
+          Future.successful(Forbidden("not.allowed"))
+        }
+      ))
   }
 }
