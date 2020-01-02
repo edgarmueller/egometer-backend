@@ -157,7 +157,7 @@ class PasswordControllerSpec
         val request: Request[AnyContentAsJson] = FakeRequest().withJsonBody(Json.obj("password" -> "password")).withCSRFToken
 
         authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-        userService.retrieve(authToken.userID) returns Future.successful(None)
+        userService.findById(authToken.userID) returns Future.successful(None)
 
         Response(
           BAD_REQUEST,
@@ -175,7 +175,7 @@ class PasswordControllerSpec
           .withCSRFToken
 
         authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-        userService.retrieve(authToken.userID) returns Future.successful(Some(user.copy(loginInfo = Seq())))
+        userService.findById(authToken.userID) returns Future.successful(Some(user.copy(loginInfo = Seq())))
 
         Response(
           BAD_REQUEST,
@@ -197,7 +197,7 @@ class PasswordControllerSpec
         passwordHasher.hash(password) returns passwordInfo
         passwordHasherRegistry.current returns passwordHasher
         authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-        userService.retrieve(authToken.userID) returns Future.successful(Some(user))
+        userService.findById(authToken.userID) returns Future.successful(Some(user))
         authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo) returns Future.successful(passwordInfo)
 
         Response(

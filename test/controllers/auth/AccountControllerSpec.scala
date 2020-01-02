@@ -169,7 +169,7 @@ class AccountControllerSpec
           val request: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
           authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-          userService.retrieve(authToken.userID) returns Future.successful(None)
+          userService.findById(authToken.userID) returns Future.successful(None)
 
           Response(
             BAD_REQUEST,
@@ -185,7 +185,7 @@ class AccountControllerSpec
           val request: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
           authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-          userService.retrieve(authToken.userID) returns Future.successful(Some(user.copy(loginInfo = Seq())))
+          userService.findById(authToken.userID) returns Future.successful(Some(user.copy(loginInfo = Seq())))
 
           Response(
             BAD_REQUEST,
@@ -202,7 +202,7 @@ class AccountControllerSpec
           val request = FakeRequest().withCSRFToken
 
           authTokenService.validate(tokenID) returns Future.successful(Some(authToken))
-          userService.retrieve(authToken.userID) returns Future.successful(Some(user))
+          userService.findById(authToken.userID) returns Future.successful(Some(user))
           userService.save(any[User]) returns Future.successful(user)
 
           Response(

@@ -92,7 +92,7 @@ class PasswordController @Inject() (
       request.body.asJson
         .flatMap(_.validate[Password].asOpt)
         .map(password =>
-          userService.retrieve(authToken.userID).flatMap {
+          userService.findById(authToken.userID).flatMap {
             case Some(user) if user.loginInfo.exists(_.providerID == CredentialsProvider.ID) =>
               val passwordInfo = passwordHasherRegistry.current.hash(password.password)
               val loginInfo = user.loginInfo.find(_.providerID == CredentialsProvider.ID).get

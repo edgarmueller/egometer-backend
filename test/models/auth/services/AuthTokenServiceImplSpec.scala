@@ -1,11 +1,10 @@
-package auth.models.services
+package models.auth.services
 
 import java.time.{Clock, Instant, ZoneId}
 import java.util.UUID
 
 import models.auth.AuthToken
 import models.auth.daos.AuthTokenDao
-import models.auth.services.AuthTokenServiceImpl
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope

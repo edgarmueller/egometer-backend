@@ -24,28 +24,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserServiceImpl @Inject()(userDAO: UserDao, clock: Clock)(implicit ex: ExecutionContext) extends UserService {
 
   /**
-   * Monkey patch the `CommonSocialProfile` class.
-   *
-   * @param profile The class to patch.
-   */
-  implicit class RichCommonSocialProfile(profile: CommonSocialProfile) {
-    def name: Option[String] = profile.fullName.orElse {
-      profile.firstName -> profile.lastName match {
-        case (Some(f), Some(l)) => Some(f + " " + l)
-        case (Some(f), None) => Some(f)
-        case (None, Some(l)) => Some(l)
-        case _ => None
-      }
-    }
-  }
-
-  /**
    * Retrieves a user that matches the specified ID.
    *
    * @param id The ID to retrieve a user.
    * @return The retrieved user or None if no user could be retrieved for the given ID.
    */
-  def retrieve(id: UUID): Future[Option[User]] = userDAO.find(id)
+  def findById(id: UUID): Future[Option[User]] = userDAO.find(id)
 
   /**
    * Retrieves a user that matches the specified login info.
@@ -62,45 +46,4 @@ class UserServiceImpl @Inject()(userDAO: UserDao, clock: Clock)(implicit ex: Exe
    * @return The saved user.
    */
   def save(user: User): Future[User] = userDAO.save(user)
-
-  /**
-   * Saves the social profile for a user.
-   *
-   * If a user exists for this profile then update the user, otherwise create a new user with the given profile.
-   *
-   * @param profile The social profile to save.
-   * @return The user for whom the profile was saved.
-   */
-  def save(profile: CommonSocialProfile)(implicit request: RequestHeader, lang: i18n.Lang): Future[User] = {
-    userDAO.find(profile.loginInfo).flatMap {
-      // Update user with profile
-      case Some(user) =>
-        userDAO.save(user.copy(
-          name = profile.name,
-          email = profile.email.orElse(user.email), // Do not override existing email with empty email
-          avatarURL = profile.avatarURL
-        ))
-      // Insert a new user
-      case None =>
-        userDAO.save(User(
-          id = UUID.randomUUID(),
-          loginInfo = Seq(profile.loginInfo),
-          name = profile.name,
-          email = profile.email,
-          avatarURL = profile.avatarURL,
-          registration = Registration(
-            lang = lang,
-            ip = request.remoteAddress,
-            host = request.headers.get(HeaderNames.HOST),
-            userAgent = request.headers.get(HeaderNames.USER_AGENT),
-            activated = true,
-            dateTime = clock.instant()
-          ),
-          settings = Settings(
-            lang = lang,
-            timeZone = None
-          )
-        ))
-    }
-  }
 }

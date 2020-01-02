@@ -2,11 +2,9 @@ package models.auth.services
 
 import java.util.UUID
 
+import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.IdentityService
-import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
 import models.User
-import play.api.i18n.Lang
-import play.api.mvc.RequestHeader
 
 import scala.concurrent.Future
 
@@ -21,7 +19,15 @@ trait UserService extends IdentityService[User] {
    * @param id The ID to retrieve a user.
    * @return The retrieved user or None if no user could be retrieved for the given ID.
    */
-  def retrieve(id: UUID): Future[Option[User]]
+  def findById(id: UUID): Future[Option[User]]
+
+  /**
+   * Retrieves a user that matches the specified login info.
+   *
+   * @param loginInfo The login info to retrieve a user.
+   * @return The retrieved user or None if no user could be retrieved for the given login info.
+   */
+  def retrieve(loginInfo: LoginInfo): Future[Option[User]]
 
   /**
    * Saves a user.
@@ -30,14 +36,4 @@ trait UserService extends IdentityService[User] {
    * @return The saved user.
    */
   def save(user: User): Future[User]
-
-  /**
-   * Saves the social profile for a user.
-   *
-   * If a user exists for this profile then update the user, otherwise create a new user with the given profile.
-   *
-   * @param profile The social profile to save.
-   * @return The user for whom the profile was saved.
-   */
-  def save(profile: CommonSocialProfile)(implicit request: RequestHeader, lang: Lang): Future[User]
 }
