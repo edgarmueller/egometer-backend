@@ -155,8 +155,8 @@ class PasswordController @Inject() (
         subject = Messages("auth.email.reset.password.subject"),
         from = Messages("email.from"),
         to = Seq(email),
-        bodyText = Some(s"TODO: resetPassword $url"), //auth.views.txt.emails.resetPassword(user, url).body),
-        bodyHtml = Some(s"TODO resetPassword $url") //auth.views.html.emails.resetPassword(user, url).body)
+        bodyText = Some(s"Please follow this URL to reset your egometer password: $url"),
+        bodyHtml = Some(s"Please follow this URL to reset your egometer password: $url"),
       ))
     }
   }

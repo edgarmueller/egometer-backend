@@ -92,8 +92,8 @@ class AccountController @Inject() (
         subject = Messages("auth.email.activate.account.subject"),
         from = Messages("email.from"),
         to = Seq(email),
-        bodyText = Some(s"TODO: $url"), // Some(auth.views.txt.emails.activateAccount(user, url).body),
-        bodyHtml = Some(s"TODO: $url") //Some(auth.views.html.emails.activateAccount(user, url).body)
+        bodyText = Some(s"Please follow this URL to activate your account : $url"),
+        bodyHtml = Some(s"Please follow this URL to activate your account: $url")
       ))
     }
   }
