@@ -66,5 +66,28 @@ Then open your favourite browser and go to
 In the tests directory there are tests written with the [ScalaTest](http://www.scalatest.org/) library.  
 To launch them just type ```test``` in a running SBT session or simply type ```sbt test```
 
+## API
+This project comes with Swagger Docs, to check them navigate to `http://localhost:9000/assets/lib/swagger-ui/index.html`.
 
+### Sign-in
+```bash
+curl --location --request POST 'localhost:9000/api/v1/sign-in' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"email": "foo@example.com",
+	"password": "test1234",
+	"rememberMe": false
+}'
+```
 
+### Get meters 
+```bash
+curl --location --request GET 'localhost:9000/api/v1/meters' \
+--header 'X-Auth-Token: $TOKEN' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"email": "foo@example.com",
+	"password": "secret",
+	"rememberMe": false
+}'
+```
