@@ -9,6 +9,7 @@ import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
 import controllers.common.ApiController
+import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
 import javax.inject.Inject
 import models.auth.{SignInInfo, SignInToken}
 import models.auth.services.UserService
@@ -34,6 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param configuration          The Play configuration.
   * @param clock                  The clock instance.
   */
+@Api(value = "/sign-in")
 class SignInController @Inject() (
                                    components:             ControllerComponents,
                                    silhouette:             Silhouette[DefaultEnv],
@@ -46,6 +48,14 @@ class SignInController @Inject() (
 
   import models.JsonFormats._
 
+  @ApiOperation(
+    value = "Log in"
+  )
+  @ApiResponses(Array(
+    new ApiResponse(code = 200, message = "Login success"),
+    new ApiResponse(code = 400, message = "Invalid JSON"),
+    new ApiResponse(code = 401, message = "Invalid credentials")
+  ))
   def signIn: Action[AnyContent] = (silhouette.UnsecuredAction andThen httpErrorRateLimitFunction).async { implicit request =>
     import models.JsonFormats._
     request.body.asJson

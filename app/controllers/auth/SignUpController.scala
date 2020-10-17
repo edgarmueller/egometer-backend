@@ -9,6 +9,7 @@ import com.mohiva.play.silhouette.api.services.AvatarService
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers._
 import controllers.common.ApiController
+import io.swagger.annotations.Api
 import javax.inject.Inject
 import models.auth.{Registration, SignUpData}
 import models.auth.services.{AuthTokenService, UserService}
@@ -40,9 +41,9 @@ import scala.language.postfixOps
  * @param mailerClient           The mailer client.
  * @param configuration          The Play configuration.
  * @param clock                  The clock instance.
- * // * @param jsRouter               The JS router helper.
- * @param ex                     The execution context.
+ * @param executionContext                     The execution context.
  */
+@Api(value = "/sign-up")
 class SignUpController @Inject() (
   val controllerComponents: ControllerComponents,
   silhouette:               Silhouette[DefaultEnv],
@@ -57,7 +58,7 @@ class SignUpController @Inject() (
   jsRouter:                 JSRouter
 )(
   implicit
-  ex: ExecutionContext
+  executionContext: ExecutionContext
 ) extends ApiController {
 
   /**
