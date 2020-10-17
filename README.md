@@ -67,7 +67,7 @@ In the tests directory there are tests written with the [ScalaTest](http://www.s
 To launch them just type ```test``` in a running SBT session or simply type ```sbt test```
 
 ## API
-This project comes with Swagger Docs, to check them navigate to `http://localhost:9000/assets/lib/swagger-ui/index.html`.
+This project comes with Swagger Docs, to check them navigate to `http://localhost:9000/api/v1/docs.
 
 ### Sign-in
 ```bash
